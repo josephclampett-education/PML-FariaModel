@@ -7,7 +7,7 @@ p.nu = 2*10^(-5); % m^2/s;
   % only effective value used below
 
 % Effective Kinematic Viscosity
-p.nu = 0.865*p.nu; % m^2/s; 
+p.nu = 0.803*p.nu; % m^2/s; 
 
   % Note:
   % set by matching experimental and simulation Faraday threshold
@@ -21,7 +21,7 @@ p.sig = 0.0206; % kg/s^2
 p.rho = 949; % kg/m^3
 
 % Angular Frequency (of bath vibration)
-p.omega0 = (2*pi)*70; % 1/s
+p.omega0 = (2*pi)*80; % 1/s
 
 % Gravity
 p.g0 = 9.81; % m/s^2

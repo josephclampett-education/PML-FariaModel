@@ -5,8 +5,8 @@ p = fluid_params();
 %% Set Topography Parameters
 
 % Domain Size
-p.Lx = 19; % lambdaF
-p.Ly = 19; % lambdaF
+p.Lx = 20; % lambdaF
+p.Ly = 20; % lambdaF
 
 % Grid Spacing
 p.hx_desired = 0.1;                          % lambdaF
@@ -37,15 +37,18 @@ p.type = 'flat'; % options: 'flat', 'square_well', 'circular_well'
 
 switch p.type
     case 'flat'
-        p.h0 = 1.5*10^(-3); % m (constant depth)
+        p.h0 = 4*10^(-3); % m (constant depth)
     case 'square_well'
         p.h0 = 1.5*10^(-3); % m (interior depth)
         p.h1 = 1.5*10^(-4); % m (exterior depth)
         p.Lt = 4;           % lambdaF (well width)
     case 'circular_well'
-        p.h0 = 1.5*10^(-3); % m (interior depth)
-        p.h1 = 1.5*10^(-4); % m (exterior depth)
-        p.Dt = 4;           % lambdaF (well diameter)
+        % JX - In the flat case we're using Ian's version, in this case
+        % we're using experimental parameters for depths but using Ian's
+        % case for circular radius
+        p.h0 = 5.46*10^(-3); % m (interior depth)
+        p.h1 = 0.61*10^(-3); % m (exterior depth)
+        p.Dt = 4.8757;       % lambdaF (well diameter)
         p.Rt = p.Dt/2;      % lambdaF (well radius)
 end
 
@@ -58,7 +61,8 @@ p = faraday_threshold(p);
 %% Set Drop Parameters & Initial Conditions
 
 % Drop Size
-p.drop_radius  = (0.745/2)*10^(-3);                       % m
+% JX >> TODO - Need to reconcile this size with the strobe model
+p.drop_radius  = (0.45)*10^(-3);                          % m
 p.drop_density = 949;                                     % kg/m^3
 p.drop_mass    = (4/3)*pi*p.drop_radius^3*p.drop_density; % kg
 
@@ -87,7 +91,7 @@ p.eta0 = zeros(size(p.xx));
 p.phi0 = zeros(size(p.xx));
 
 % Set Memory
-p.mem = 0.95;
+p.mem = 0.982;
 p.Gam = p.mem*p.GamF;
 
 % Set Number of Impacts (Simulation Time in TF)
