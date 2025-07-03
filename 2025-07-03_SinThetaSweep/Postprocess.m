@@ -6,10 +6,11 @@ meanVelocities = zeros(fileCount, 1);
 for i = 1:fileCount
     filePath = fullfile(fileSearch(i).folder, fileSearch(i).name);
     load(filePath);
-
-    dx = diff(p.x_data);
-    dy = diff(p.y_data);
+    dx = mod(p.x_data(2:end) - p.x_data(1:end-1) + p.Lx/2, p.Lx) -  p.Lx/2;
+    dy = mod(p.y_data(2:end) - p.y_data(1:end-1) + p.Ly/2, p.Ly) -  p.Ly/2;
     dt = diff(p.t_data);
+
+
     
     v_data = sqrt(dx.^2 + dy.^2) ./ dt * 4.75 * 40;
     meanVelocity = mean(v_data);
