@@ -1,7 +1,7 @@
 sin_thetas = 0:0.02:0.2;
 
 runFolder = "2025-07-03_SinThetaSweep";
-if ~exists(runFolder)
+if ~exist(runFolder, 'dir')
     mkdir(runFolder);
 end
 outputData = [];
