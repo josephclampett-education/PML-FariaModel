@@ -38,31 +38,35 @@ p.type = 'flat'; % options: 'flat', 'square_well', 'circular_well'
 switch p.type
     case 'flat'
         p.h0 = 4*10^(-3); % m (constant depth)
+        p.Dp = 4.8757*2;  % lambdaF (droplet corral diameter)
+        p.Rp = p.Dp/2;    % lambdaF (droplet corral radius)
     case 'square_well'
         p.h0 = 1.5*10^(-3); % m (interior depth)
         p.h1 = 1.5*10^(-4); % m (exterior depth)
         p.Lt = 4;           % lambdaF (well width)
     case 'circular_well'
-        % JX - In the flat case we're using Ian's version, in this case
+        % JX -- In the flat case we're using Ian's version, in this case
         % we're using experimental parameters for depths but using Ian's
         % case for circular radius
         p.h0 = 5.46*10^(-3); % m (interior depth)
         p.h1 = 0.61*10^(-3); % m (exterior depth)
-        p.Dt = 4.8757;       % lambdaF (well diameter)
-        p.Rt = p.Dt/2;      % lambdaF (well radius)
+        p.Dt = 4.8757*2;     % lambdaF (well diameter)
+        p.Rt = p.Dt/2;       % lambdaF (well radius)
 end
 
 p = top_params(p);
 
 %% Calculate Faraday Threshold
 
-p = faraday_threshold(p);
+% p = faraday_threshold(p);
+p.nF = 1000;
+p.GamF = 4.1979;
 
 %% Set Drop Parameters & Initial Conditions
 
 % Drop Size
-% JX >> TODO - Need to reconcile this size with the strobe model
-p.drop_radius  = (0.45)*10^(-3);                          % m
+% JX -- TODO, Need to reconcile this size with the strobe model
+p.drop_radius  = (0.36)*10^(-3);                          % m
 p.drop_density = 949;                                     % kg/m^3
 p.drop_mass    = (4/3)*pi*p.drop_radius^3*p.drop_density; % kg
 
