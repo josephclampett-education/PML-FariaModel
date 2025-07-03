@@ -1,12 +1,23 @@
-sin_thetas = 0:0.02:0.2;
+memoryVals = 0:0.02:0.2;
+countVals = 0:5:40;
 
-runFolder = "2025-07-03_SinThetaSweep";
+count0 = length(memoryVals);
+count1 = length(countVals);
+threadCount = count0 * count1;
+
+runFolder = "2025-07-03_WavelikeAttempt0";
 if ~exist(runFolder, 'dir')
     mkdir(runFolder);
 end
 outputData = [];
 
-parfor i = 1:length(sin_thetas) 
+for i = 1:threadCount
+    %% Unpack Dispatch Parameters
+    idx0 = mod((i - 1), count0) + 1;
+    idx1 = floor((i - 1) / count0) + 1;
+
+    mem = memoryVals(idx0);
+    count = countVals(idx1);
 
     %% Set Fluid Parameters
     
@@ -84,7 +95,7 @@ parfor i = 1:length(sin_thetas)
       % only the mass matters since treated as a point for impacts
     
     % Impact Phase
-    p.sin_theta = sin_thetas(i);
+    p.sin_theta = mems(i);
     p.theta     = pi-asin(p.sin_theta);
     
       % Note:
@@ -92,7 +103,7 @@ parfor i = 1:length(sin_thetas)
       % optional: can choose a phase to match speed shown in experiments
     
     % Number of Drops
-    p.n_drops = 1;
+    p.n_drops = count;
     
     % Set Drop Initial Conditions
     p.xi = zeros(1,p.n_drops);
@@ -105,7 +116,7 @@ parfor i = 1:length(sin_thetas)
     p.phi0 = zeros(size(p.xx));
     
     % Set Memory
-    p.mem = 0.982;
+    p.mem = mem;
     p.Gam = p.mem*p.GamF;
     
     % Set Number of Impacts (Simulation Time in TF)

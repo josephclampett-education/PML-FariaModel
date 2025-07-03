@@ -7,6 +7,6 @@
 #SBATCH -t 07-00:00:00
 
 module load matlab/2023b
-matlab -nodesktop -nosplash -singleCompThread -r main -logfile output.out
+matlab -nodesktop -nosplash -singleCompThread -r main_2025_07_03_WavelikeAttempt0 -logfile output.out
 
 
