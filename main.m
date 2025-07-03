@@ -118,7 +118,7 @@ parfor i = 1:length(sin_thetas)
     p = simulate(p);
 
     %% Output Results
-    saveFilePath = fullfile(runFolder, ['sin_theta=', numstr(p.sin_theta) , '.mat']);
+    saveFilePath = fullfile(runFolder, ['sin_theta=', num2str(p.sin_theta) , '.mat']);
     parsave(saveFilePath, p);
 end
 
