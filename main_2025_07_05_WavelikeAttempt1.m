@@ -5,7 +5,7 @@ count0 = length(memoryVals);
 count1 = length(countVals);
 threadCount = count0 * count1;
 
-runFolder = "2025-07-03_WavelikeAttempt0";
+runFolder = "2025-07-05_WavelikeAttempt1";
 if ~exist(runFolder, 'dir')
     mkdir(runFolder);
 end

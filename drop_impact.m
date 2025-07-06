@@ -18,8 +18,6 @@ for k = 1:p.n_drops
     velocity_v = [ui(k), vi(k)];
 
     if (radius > p.Rp)
-        disp("Droplet outside corral.")
-
         correctedVelocity_v = velocity_v - 2*dot(radius_uv, velocity_v) * radius_uv;
 
         ui(k) = correctedVelocity_v(1);
