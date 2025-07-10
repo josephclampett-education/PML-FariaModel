@@ -13,7 +13,7 @@ vi  = p.vi;
 x_data   = zeros(p.nimpacts,p.n_drops); 
 y_data   = zeros(p.nimpacts,p.n_drops); 
 t_data   = zeros(p.nimpacts,1);
-eta_data = zeros(p.Nx,p.Ny,p.nimpacts); 
+eta_data = zeros(p.Nx,p.Ny,p.n_save_wave); 
 
 % Fourier Transform of Wave Initial Condition
 phi_hat = fft2(phi);               
@@ -35,7 +35,10 @@ for n = 1:p.nimpacts
     x_data(n,:)     = xi; 
     y_data(n,:)     = yi; 
     t_data(n)       = t; 
-    eta_data(:,:,n) = eta;
+    % Save wavefield for the last 10 period
+    if n > p.nimpacts - p.n_save_wave
+        eta_data(:,:, n - p.nimpacts + p.n_save_wave) = eta;
+    end
     
     % Drop Impact
     [ui, vi, phi_hat] = drop_impact(xi,yi, ui, vi, phi_hat, eta_hat, p);
@@ -55,4 +58,4 @@ end
 p.x_data   = x_data; 
 p.y_data   = y_data; 
 p.t_data   = t_data;
-% p.eta_data = eta_data; 
+p.eta_data = eta_data; 
