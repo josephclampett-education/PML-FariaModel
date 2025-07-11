@@ -1,7 +1,7 @@
 addpath("..");
 
 memoryVals = [0.95, 0.98, 0.99, 0.995];
-countVals = 10:10:40;
+countVals = 10:10:20;
 
 count0 = length(memoryVals);
 count1 = length(countVals);
@@ -52,7 +52,7 @@ parfor i = 1:threadCount
       % scale with spatial res squared to keep well behaved for high res
     
     % Topography
-    p.type = 'flat'; % options: 'flat', 'square_well', 'circular_well'
+    p.type = 'circular_well'; % options: 'flat', 'square_well', 'circular_well'
     
     switch p.type
         case 'flat'
@@ -67,8 +67,8 @@ parfor i = 1:threadCount
             % JX -- In the flat case we're using Ian's version, in this case
             % we're using experimental parameters for depths but using Ian's
             % case for circular radius
-            p.h0 = 5.46*10^(-3); % m (interior depth)
-            p.h1 = 0.61*10^(-3); % m (exterior depth)
+            p.h0 = 4*10^(-3); % m (interior depth)
+            p.h1 = 0.6*10^(-3); % m (exterior depth)
             p.Dt = 4.8757*2;     % lambdaF (well diameter)
             p.Rt = p.Dt/2;       % lambdaF (well radius)
     end
@@ -77,9 +77,9 @@ parfor i = 1:threadCount
     
     %% Calculate Faraday Threshold
     
-    % p = faraday_threshold(p);
-    p.nF = 1000;
-    p.GamF = 4.1979;
+    p = faraday_threshold(p);
+    %p.nF = 1000;
+    %p.GamF = 4.1979;
     
     %% Set Drop Parameters & Initial Conditions
     
@@ -128,6 +128,9 @@ parfor i = 1:threadCount
     p.nimpacts = 40 * 60 * 5;
     
     p = drop_params(p);
+
+    % Save Parameters
+    p.n_save_wave = 10; % Save wavefield for the last n impacts
     
     %% Run Simulation
     
@@ -140,5 +143,5 @@ end
 
 %% Hack to allow saving inside parfor
 function parsave(fname, p)
-  save(fname, 'p');
+  save(fname, 'p', "-v7.3");
 end
