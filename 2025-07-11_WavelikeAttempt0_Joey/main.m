@@ -137,7 +137,7 @@ parfor i = 1:threadCount
     p = simulate(p);
 
     %% Output Results
-    saveFilePath = fullfile(runFolder, ['mem=', num2str(p.mem), ' ', 'N=', num2str(p.n_drops), '.mat']);
+    saveFilePath = fullfile(['mem=', num2str(p.mem), ' ', 'N=', num2str(p.n_drops), '.mat']);
     parsave(saveFilePath, p);
 end
 
