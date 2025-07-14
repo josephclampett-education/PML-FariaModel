@@ -2,7 +2,7 @@
 
 #SBATCH -p general
 #SBATCH --nodes=1
-#SBATCH --ntasks=8
+#SBATCH --ntasks=24
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=64g
 #SBATCH --mail-type=begin,end,fail
