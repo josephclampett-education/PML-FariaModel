@@ -1,0 +1,25 @@
+MATLAB is selecting SOFTWARE rendering.
+
+                            < M A T L A B (R) >
+                  Copyright 1984-2024 The MathWorks, Inc.
+             R2024b Update 6 (24.2.0.2923080) 64-bit (glnxa64)
+                               March 28, 2025
+
+ 
+To get started, type doc.
+For product information, visit www.mathworks.com.
+ 
+Starting parallel pool (parpool) using the 'Processes' profile ...
+/var/spool/slurmd/job8452865/slurm_script: line 13: 840661 Killed                  matlab -nodesktop -nosplash -r main -logfile output_main.out
+MATLAB is selecting SOFTWARE rendering.
+
+                            < M A T L A B (R) >
+                  Copyright 1984-2024 The MathWorks, Inc.
+             R2024b Update 6 (24.2.0.2923080) 64-bit (glnxa64)
+                               March 28, 2025
+
+ 
+To get started, type doc.
+For product information, visit www.mathworks.com.
+ 
+slurmstepd: error: Detected 12 oom_kill events in StepId=8452865.batch. Some of the step tasks have been OOM Killed.
