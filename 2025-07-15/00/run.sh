@@ -9,6 +9,6 @@
 #SBATCH --mail-user=jclampett@unc.edu
 #SBATCH -t 07-00:00:00
 
-module load matlab/2023b
+module load matlab/2024b
 matlab -nodesktop -nosplash -r main -logfile output_main.out
 matlab -nodesktop -nosplash -r postprocess -logfile output_postprocess.out
