@@ -11,4 +11,4 @@
 
 module load matlab/2023b
 matlab -nodesktop -nosplash -r main -logfile output_main.out
-matlab -nodesktop -nosplash -r main -logfile output_postprocess.out
+matlab -nodesktop -nosplash -r postprocess -logfile output_postprocess.out
