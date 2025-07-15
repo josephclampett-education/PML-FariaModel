@@ -1,7 +1,7 @@
-function p = faraday_threshold(p)
+function p = faraday_threshold(p, guess)
 
 % Starting Guess for Faraday Threshold
-Gam = 3.8; % units of gravitational acceleration g
+Gam = guess; % units of gravitational acceleration g
 
 % Find Upper and Lower Bound of Faraday Threshold
 p.nF      = 1000;                  % number of Faraday periods to simulate over

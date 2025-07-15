@@ -1,10 +1,37 @@
 addpath("..");
 
-memoryVals = [0.95, 0.98, 0.99, 0.995];
-countVals = 10:10:40;
+%% ================================================================
+%% PARAMS
+%% ================================================================
 
-count0 = length(memoryVals);
-count1 = length(countVals);
+% BATCH
+BATCH_mem = [0.95, 0.98, 0.99, 0.995];
+BATCH_n_drops = 30:10:40;
+
+% BATH
+VAR_type = 'flat';
+VAR_R = 4.8757;
+VAR_h0 = 5.46*10^(-3);
+VAR_h1 = 0.61*10^(-3);
+
+VAR_thresholdGuess = 4.1979;
+
+% DROPLETS
+VAR_r = (0.36)*10^(-3);
+VAR_sin_theta = 0.2;
+
+% INITIAL CONDITIONS
+VAR_initialRadiusScale = 0.80;
+VAR_initialSpeedScale = 0.01;
+
+% SIMULATION
+VAR_nimpacts = 40 * 60 * 5;
+VAR_n_save_wave = 10;
+
+%% ================================================================
+
+count0 = length(BATCH_mem);
+count1 = length(BATCH_n_drops);
 threadCount = count0 * count1;
 
 outputData = [];
@@ -13,9 +40,6 @@ parfor i = 1:threadCount
     %% Unpack Dispatch Parameters
     idx0 = mod((i - 1), count0) + 1;
     idx1 = floor((i - 1) / count0) + 1;
-
-    mem = memoryVals(idx0);
-    count = countVals(idx1);
 
     %% Set Fluid Parameters
     
@@ -52,40 +76,41 @@ parfor i = 1:threadCount
       % scale with spatial res squared to keep well behaved for high res
     
     % Topography
-    p.type = 'flat'; % options: 'flat', 'square_well', 'circular_well'
+    p.type = VAR_type; % options: 'flat', 'square_well', 'circular_well'
     
     switch p.type
         case 'flat'
-            p.h0 = 4*10^(-3); % m (constant depth)
-            p.Dp = 4.8757*2;  % lambdaF (droplet corral diameter)
-            p.Rp = p.Dp/2;    % lambdaF (droplet corral radius)
+            p.h0 = VAR_h0; % m (constant depth)
+            p.h1 = p.h0;
+            p.Rc = VAR_R;  % lambdaF (droplet corral radius)
+            p.Dc = p.Rc*2; % lambdaF (droplet corral diameter)
         case 'square_well'
             p.h0 = 1.5*10^(-3); % m (interior depth)
             p.h1 = 1.5*10^(-4); % m (exterior depth)
             p.Lt = 4;           % lambdaF (well width)
         case 'circular_well'
-            % JX -- In the flat case we're using Ian's version, in this case
-            % we're using experimental parameters for depths but using Ian's
-            % case for circular radius
-            p.h0 = 5.46*10^(-3); % m (interior depth)
-            p.h1 = 0.61*10^(-3); % m (exterior depth)
-            p.Dt = 4.8757*2;     % lambdaF (well diameter)
-            p.Rt = p.Dt/2;       % lambdaF (well radius)
+            p.h0 = VAR_h0; % m (interior depth)
+            p.h1 = VAR_h1; % m (exterior depth)
+            p.Rc = VAR_R;  % lambdaF (well radius)
+            p.Dc = p.Rc*2; % lambdaF (well diameter)
     end
     
     p = top_params(p);
     
     %% Calculate Faraday Threshold
-    
-    % p = faraday_threshold(p);
-    p.nF = 1000;
-    p.GamF = 4.1979;
+    thresholdFile = sprintf("../thresholds/%f_%f_%f.mat", p.h0, p.h1, p.Rc);
+    if exists(thresholdFile)
+      load(thresholdFile);
+      p.GamF = OUT_GamF;
+    else
+      p = faraday_threshold(p, VAR_thresholdGuess);
+      save(thresholdFile, "p.GamF");
+    end
     
     %% Set Drop Parameters & Initial Conditions
     
     % Drop Size
-    % JX -- TODO, Need to reconcile this size with the strobe model
-    p.drop_radius  = (0.36)*10^(-3);                          % m
+    p.drop_radius  = VAR_r;                                   % m
     p.drop_density = 949;                                     % kg/m^3
     p.drop_mass    = (4/3)*pi*p.drop_radius^3*p.drop_density; % kg
     
@@ -93,7 +118,7 @@ parfor i = 1:threadCount
       % only the mass matters since treated as a point for impacts
     
     % Impact Phase
-    p.sin_theta = 0.2;
+    p.sin_theta = VAR_sin_theta;
     p.theta     = pi-asin(p.sin_theta);
     
       % Note:
@@ -101,11 +126,11 @@ parfor i = 1:threadCount
       % optional: can choose a phase to match speed shown in experiments
     
     % Number of Drops
-    p.n_drops = count;
+    p.n_drops = BATCH_n_drops(idx1);
     
     % Set Drop Initial Conditions
     randTheta = 2*pi*rand(1,p.n_drops);
-    adjustedMaxRandR = 0.80 * p.Rp;
+    adjustedMaxRandR = VAR_initialRadiusScale * p.Rc;
     randR = adjustedMaxRandR*sqrt(rand(1,p.n_drops));
 
     randX = cos(randTheta);
@@ -113,32 +138,35 @@ parfor i = 1:threadCount
 
     p.xi = randR .* randX;
     p.yi = randR .* randY;
-    p.ui = 0.01 * randX;
-    p.vi = 0.01 * randY;
+    p.ui = VAR_initialSpeedScale * rand(1,p.n_drops);
+    p.vi = VAR_initialSpeedScale * rand(1,p.n_drops);
     
     % Set Wave Initial Conditions
     p.eta0 = zeros(size(p.xx));
     p.phi0 = zeros(size(p.xx));
     
     % Set Memory
-    p.mem = mem;
+    p.mem = BATCH_mem(idx0);
     p.Gam = p.mem*p.GamF;
     
     % Set Number of Impacts (Simulation Time in TF)
-    p.nimpacts = 40 * 60 * 5;
+    p.nimpacts = VAR_nimpacts;
     
     p = drop_params(p);
+
+    % Save Parameters
+    p.n_save_wave = VAR_n_save_wave;
     
     %% Run Simulation
     
     p = simulate(p);
 
     %% Output Results
-    saveFilePath = fullfile(runFolder, ['mem=', num2str(p.mem), ' ', 'N=', num2str(p.n_drops), '.mat']);
+    saveFilePath = sprintf("RES_mem=%f, N=%d.mat", p.mem, p.n_drops);
     parsave(saveFilePath, p);
 end
 
 %% Hack to allow saving inside parfor
 function parsave(fname, p)
-  save(fname, 'p');
+  save(fname, 'p', "-v7.3");
 end

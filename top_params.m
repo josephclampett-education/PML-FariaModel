@@ -29,7 +29,7 @@ switch p.type
             for j = 1:length(p.y)
                 xi = p.x(i);
                 yj = p.y(j);
-                if sqrt(xi^2+yj^2) <= p.Rt
+                if sqrt(xi^2+yj^2) <= p.Rc
                     p.h_top_grid(j,i) = p.h0;
                 else
                     p.h_top_grid(j,i) = p.h1;
