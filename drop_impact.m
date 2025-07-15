@@ -10,7 +10,7 @@ for k = 1:p.n_drops
     vi(k) = -Fy*(p.G/p.cf_impact)*(1-exp(-p.cf_impact)) + exp(-p.cf_impact)*vi(k);
 
     % JX -- Adding corral using p.Dc
-    if (p.type == 'flat')
+    if (strcmp(p.type, 'flat'))
         xPos = xi(k);
         yPos = yi(k);
         radius = sqrt(xPos^2 + yPos^2);
@@ -18,7 +18,7 @@ for k = 1:p.n_drops
 
         velocity_v = [ui(k), vi(k)];
 
-        if (radius > p.Rc) & (dot(radius_uv, velocity_v) > 0)
+        if (radius > p.Rc) && (dot(radius_uv, velocity_v) > 0)
             correctedVelocity_v = velocity_v - 2*dot(radius_uv, velocity_v) * radius_uv;
 
             ui(k) = correctedVelocity_v(1);

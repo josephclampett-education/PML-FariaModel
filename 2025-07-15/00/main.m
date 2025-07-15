@@ -1,12 +1,21 @@
-addpath("..");
+% ================================================================
+% REMINDERS
+% ================================================================
 
-%% ================================================================
-%% PARAMS
-%% ================================================================
+% Make sure to always check that the core loop is parfor not for!
+% If making a new run id (ex: 09 or 51) make sure to notify one on Slack
+
+% ================================================================
+% PARAMS
+% ================================================================
+
+BASE_DIRECTORY = "../..";
+
+addpath(BASE_DIRECTORY);
 
 % BATCH
 BATCH_mem = [0.95, 0.98, 0.99, 0.995];
-BATCH_n_drops = 30:10:40;
+BATCH_R = linspace(2.37633, 2.8761, 5);
 
 % BATH
 VAR_type = 'flat';
@@ -14,24 +23,34 @@ VAR_R = 4.8757;
 VAR_h0 = 5.46*10^(-3);
 VAR_h1 = 0.61*10^(-3);
 
+VAR_shouldOverrideThreshold = 0;
 VAR_thresholdGuess = 4.1979;
 
 % DROPLETS
 VAR_r = (0.36)*10^(-3);
 VAR_sin_theta = 0.2;
+VAR_n_drops = 10;
 
 % INITIAL CONDITIONS
 VAR_initialRadiusScale = 0.80;
 VAR_initialSpeedScale = 0.01;
 
 % SIMULATION
-VAR_nimpacts = 40 * 60 * 5;
-VAR_n_save_wave = 10;
+if isfile(BASE_DIRECTORY + "/ISLOCAL")
+    VAR_nimpacts = 2;
+    VAR_n_save_wave = 1;
+else
+    VAR_nimpacts = 40 * 60 * 5;
+    VAR_n_save_wave = 10;
+end
+
+% Saving
+VAR_outputFolder = "RES";
 
 %% ================================================================
 
 count0 = length(BATCH_mem);
-count1 = length(BATCH_n_drops);
+count1 = length(BATCH_R);
 threadCount = count0 * count1;
 
 outputData = [];
@@ -78,11 +97,12 @@ parfor i = 1:threadCount
     % Topography
     p.type = VAR_type; % options: 'flat', 'square_well', 'circular_well'
     
+    radius = BATCH_R(idx1);
     switch p.type
         case 'flat'
             p.h0 = VAR_h0; % m (constant depth)
             p.h1 = p.h0;
-            p.Rc = VAR_R;  % lambdaF (droplet corral radius)
+            p.Rc = radius;  % lambdaF (droplet corral radius)
             p.Dc = p.Rc*2; % lambdaF (droplet corral diameter)
         case 'square_well'
             p.h0 = 1.5*10^(-3); % m (interior depth)
@@ -91,20 +111,25 @@ parfor i = 1:threadCount
         case 'circular_well'
             p.h0 = VAR_h0; % m (interior depth)
             p.h1 = VAR_h1; % m (exterior depth)
-            p.Rc = VAR_R;  % lambdaF (well radius)
+            p.Rc = radius;  % lambdaF (well radius)
             p.Dc = p.Rc*2; % lambdaF (well diameter)
     end
     
     p = top_params(p);
     
     %% Calculate Faraday Threshold
-    thresholdFile = sprintf("../thresholds/%f_%f_%f.mat", p.h0, p.h1, p.Rc);
-    if exists(thresholdFile)
-      load(thresholdFile);
-      p.GamF = OUT_GamF;
+    if VAR_shouldOverrideThreshold
+        p.GamF = VAR_thresholdGuess;
     else
-      p = faraday_threshold(p, VAR_thresholdGuess);
-      save(thresholdFile, "p.GamF");
+        thresholdFile = sprintf("%s/threshold_cache/%f_%f_%f.mat", BASE_DIRECTORY, p.h0, p.h1, p.Rc);
+        if isfile(thresholdFile)
+          gamFLoad = load(thresholdFile);
+          p.GamF = gamFLoad.GamF;
+        else
+          p = faraday_threshold(p, VAR_thresholdGuess);
+          GamF = p.GamF;
+          parsave_gamf(thresholdFile, GamF);
+        end
     end
     
     %% Set Drop Parameters & Initial Conditions
@@ -126,7 +151,7 @@ parfor i = 1:threadCount
       % optional: can choose a phase to match speed shown in experiments
     
     % Number of Drops
-    p.n_drops = BATCH_n_drops(idx1);
+    p.n_drops = VAR_n_drops;
     
     % Set Drop Initial Conditions
     randTheta = 2*pi*rand(1,p.n_drops);
@@ -162,7 +187,10 @@ parfor i = 1:threadCount
     p = simulate(p);
 
     %% Output Results
-    saveFilePath = sprintf("RES_mem=%f, N=%d.mat", p.mem, p.n_drops);
+    if ~isfolder(VAR_outputFolder)
+        mkdir(VAR_outputFolder);
+    end
+    saveFilePath = sprintf("%s/RES_mem=%f, N=%d, %s R=%f.mat", VAR_outputFolder, p.mem, p.n_drops, p.type, p.Rc);
     parsave(saveFilePath, p);
 end
 
@@ -170,3 +198,9 @@ end
 function parsave(fname, p)
   save(fname, 'p', "-v7.3");
 end
+
+%% Hack to allow saving inside parfor
+function parsave_gamf(fname, GamF)
+  save(fname, 'GamF', "-v7.3");
+end
+
