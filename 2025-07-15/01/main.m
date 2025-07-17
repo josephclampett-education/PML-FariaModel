@@ -119,13 +119,16 @@ parfor i = 1:threadCount
     
     %% Calculate Faraday Threshold
     if VAR_shouldOverrideThreshold
+        fprintf("%s: Overriding threshold.\n", datetime);
         p.GamF = VAR_thresholdGuess;
     else
         thresholdFile = sprintf("%s/threshold_cache/%f_%f_%f.mat", BASE_DIRECTORY, p.h0, p.h1, p.Rc);
         if isfile(thresholdFile)
+          fprintf("%s: Cache hit, loading threshold for %s.\n", datetime, thresholdFile);
           gamFLoad = load(thresholdFile);
           p.GamF = gamFLoad.GamF;
         else
+          fprintf("%s: Cache miss, calculating threshold for %s.\n", datetime, thresholdFile);
           p = faraday_threshold(p, VAR_thresholdGuess);
           GamF = p.GamF;
           parsave_gamf(thresholdFile, GamF);
@@ -184,6 +187,7 @@ parfor i = 1:threadCount
     
     %% Run Simulation
     
+    fprintf("%s: Beginning simulation.\n", datetime);
     p = simulate(p);
 
     %% Output Results
@@ -191,6 +195,7 @@ parfor i = 1:threadCount
         mkdir(VAR_outputFolder);
     end
     saveFilePath = sprintf("%s/RES_mem=%f, N=%d, %s R=%f.mat", VAR_outputFolder, p.mem, p.n_drops, p.type, p.Rc);
+    fprintf("%s: Saving simulation results for %s.\n", datetime, saveFilePath);
     parsave(saveFilePath, p);
 end
 
