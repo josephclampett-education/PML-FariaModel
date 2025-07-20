@@ -14,4 +14,4 @@ eval "scontrol update jobid=${SLURM_JOB_ID} name=ID[${SLURM_ARRAY_TASK_ID}]"
 echo "ID[${SLURM_ARRAY_TASK_ID}]"
 module load matlab/2024b
 matlab -nodesktop -nosplash -singleCompThread -r "batch_main($SLURM_ARRAY_TASK_ID)" -logfile output_main.out
-# matlab -nodesktop -nosplash -singleCompThread -r postprocess -logfile output_postprocess.out
+matlab -nodesktop -nosplash -singleCompThread -r postprocess -logfile output_postprocess.out

@@ -42,7 +42,7 @@ function batch_main(IN_batchIndex)
       VAR_nimpacts = 2;
       VAR_n_save_wave = 1;
   else
-      VAR_nimpacts = 40 * 60 * 5 / 10;
+      VAR_nimpacts = 40 * 60 * 20 / 10;
       VAR_n_save_wave = 10;
   end
 
