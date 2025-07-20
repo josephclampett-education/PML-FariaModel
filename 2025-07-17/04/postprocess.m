@@ -11,7 +11,7 @@ VAR_outputFolder = "RES";
 
 %% ================================================================
 
-folders = dir(VAR_outputFolder);
+folders = dir(fullfile(VAR_outputFolder, "RES_*"));
 threadCount = length(folders);
 
 outputData = [];
