@@ -76,7 +76,7 @@ parfor i = 1:threadCount
     
     hold on
     bar(radCenters, radProb, 'hist');
-    plot(j0Domain, abs(J0) * max(radProb));
+    plot(j0Domain, abs(J0) * max(radProb), Color="red");
     hold off
 
     exportgraphics(gca, pathId + "_radial_histogram.png");
