@@ -1,0 +1,90 @@
+MATLAB is selecting SOFTWARE rendering.
+
+                            < M A T L A B (R) >
+                  Copyright 1984-2024 The MathWorks, Inc.
+             R2024b Update 6 (24.2.0.2923080) 64-bit (glnxa64)
+                               March 28, 2025
+
+ 
+To get started, type doc.
+For product information, visit www.mathworks.com.
+ 
+Starting parallel pool (parpool) using the 'Processes' profile ...
+Connected to parallel pool with 24 workers.
+17-Jul-2025 09:47:47: Cache hit, loading threshold for ../../threshold_cache/0.005460_0.005460_2.376330.mat.
+17-Jul-2025 09:47:47: Beginning simulation.
+17-Jul-2025 09:47:47: Cache hit, loading threshold for ../../threshold_cache/0.005460_0.005460_2.751158.mat.
+17-Jul-2025 09:47:47: Beginning simulation.
+17-Jul-2025 09:47:47: Cache hit, loading threshold for ../../threshold_cache/0.005460_0.005460_2.876100.mat.
+17-Jul-2025 09:47:47: Beginning simulation.
+17-Jul-2025 09:47:47: Cache hit, loading threshold for ../../threshold_cache/0.005460_0.005460_2.626215.mat.
+17-Jul-2025 09:47:47: Beginning simulation.
+17-Jul-2025 09:47:47: Cache hit, loading threshold for ../../threshold_cache/0.005460_0.005460_2.876100.mat.
+17-Jul-2025 09:47:47: Beginning simulation.
+17-Jul-2025 09:47:47: Cache hit, loading threshold for ../../threshold_cache/0.005460_0.005460_2.376330.mat.
+17-Jul-2025 09:47:47: Beginning simulation.
+17-Jul-2025 09:47:47: Cache hit, loading threshold for ../../threshold_cache/0.005460_0.005460_2.876100.mat.
+17-Jul-2025 09:47:47: Beginning simulation.
+17-Jul-2025 09:47:47: Cache hit, loading threshold for ../../threshold_cache/0.005460_0.005460_2.876100.mat.
+17-Jul-2025 09:47:47: Beginning simulation.
+17-Jul-2025 09:47:47: Cache hit, loading threshold for ../../threshold_cache/0.005460_0.005460_2.501272.mat.
+17-Jul-2025 09:47:47: Beginning simulation.
+17-Jul-2025 09:47:47: Cache hit, loading threshold for ../../threshold_cache/0.005460_0.005460_2.626215.mat.
+17-Jul-2025 09:47:47: Beginning simulation.
+17-Jul-2025 09:47:47: Cache hit, loading threshold for ../../threshold_cache/0.005460_0.005460_2.751158.mat.
+17-Jul-2025 09:47:47: Beginning simulation.
+17-Jul-2025 09:47:47: Cache hit, loading threshold for ../../threshold_cache/0.005460_0.005460_2.626215.mat.
+17-Jul-2025 09:47:47: Beginning simulation.
+17-Jul-2025 09:47:47: Cache hit, loading threshold for ../../threshold_cache/0.005460_0.005460_2.501272.mat.
+17-Jul-2025 09:47:47: Beginning simulation.
+17-Jul-2025 09:47:47: Cache hit, loading threshold for ../../threshold_cache/0.005460_0.005460_2.376330.mat.
+17-Jul-2025 09:47:47: Beginning simulation.
+17-Jul-2025 09:47:47: Cache hit, loading threshold for ../../threshold_cache/0.005460_0.005460_2.501272.mat.
+17-Jul-2025 09:47:47: Beginning simulation.
+17-Jul-2025 09:47:47: Cache hit, loading threshold for ../../threshold_cache/0.005460_0.005460_2.751158.mat.
+17-Jul-2025 09:47:47: Beginning simulation.
+17-Jul-2025 09:47:47: Cache hit, loading threshold for ../../threshold_cache/0.005460_0.005460_2.626215.mat.
+17-Jul-2025 09:47:47: Beginning simulation.
+17-Jul-2025 09:47:47: Cache hit, loading threshold for ../../threshold_cache/0.005460_0.005460_2.501272.mat.
+17-Jul-2025 09:47:47: Beginning simulation.
+17-Jul-2025 09:47:47: Cache hit, loading threshold for ../../threshold_cache/0.005460_0.005460_2.751158.mat.
+17-Jul-2025 09:47:47: Beginning simulation.
+17-Jul-2025 09:47:47: Cache hit, loading threshold for ../../threshold_cache/0.005460_0.005460_2.376330.mat.
+17-Jul-2025 09:47:47: Beginning simulation.
+19-Jul-2025 10:00:25: Saving simulation results for RES/RES_mem=0.990000, N=10, flat R=2.876100.mat.
+19-Jul-2025 15:20:03: Saving simulation results for RES/RES_mem=0.950000, N=10, flat R=2.876100.mat.
+19-Jul-2025 15:27:09: Saving simulation results for RES/RES_mem=0.980000, N=10, flat R=2.876100.mat.
+19-Jul-2025 15:49:32: Saving simulation results for RES/RES_mem=0.990000, N=10, flat R=2.751158.mat.
+19-Jul-2025 17:39:59: Saving simulation results for RES/RES_mem=0.995000, N=10, flat R=2.876100.mat.
+19-Jul-2025 18:06:30: Saving simulation results for RES/RES_mem=0.950000, N=10, flat R=2.626215.mat.
+19-Jul-2025 18:44:21: Saving simulation results for RES/RES_mem=0.995000, N=10, flat R=2.501272.mat.
+19-Jul-2025 19:19:16: Saving simulation results for RES/RES_mem=0.950000, N=10, flat R=2.501272.mat.
+19-Jul-2025 19:29:57: Saving simulation results for RES/RES_mem=0.980000, N=10, flat R=2.626215.mat.
+19-Jul-2025 20:00:15: Saving simulation results for RES/RES_mem=0.995000, N=10, flat R=2.376330.mat.
+19-Jul-2025 20:50:24: Saving simulation results for RES/RES_mem=0.980000, N=10, flat R=2.501272.mat.
+19-Jul-2025 20:50:31: Saving simulation results for RES/RES_mem=0.990000, N=10, flat R=2.626215.mat.
+19-Jul-2025 21:14:03: Saving simulation results for RES/RES_mem=0.980000, N=10, flat R=2.751158.mat.
+19-Jul-2025 21:41:43: Saving simulation results for RES/RES_mem=0.950000, N=10, flat R=2.751158.mat.
+19-Jul-2025 22:18:49: Saving simulation results for RES/RES_mem=0.990000, N=10, flat R=2.376330.mat.
+19-Jul-2025 23:08:53: Saving simulation results for RES/RES_mem=0.980000, N=10, flat R=2.376330.mat.
+19-Jul-2025 23:34:59: Saving simulation results for RES/RES_mem=0.995000, N=10, flat R=2.626215.mat.
+19-Jul-2025 23:44:34: Saving simulation results for RES/RES_mem=0.950000, N=10, flat R=2.376330.mat.
+19-Jul-2025 23:46:05: Saving simulation results for RES/RES_mem=0.990000, N=10, flat R=2.501272.mat.
+19-Jul-2025 23:55:00: Saving simulation results for RES/RES_mem=0.995000, N=10, flat R=2.751158.mat.
+Parallel pool using the 'Processes' profile is shutting down.
+MATLAB is selecting SOFTWARE rendering.
+
+                            < M A T L A B (R) >
+                  Copyright 1984-2024 The MathWorks, Inc.
+             R2024b Update 6 (24.2.0.2923080) 64-bit (glnxa64)
+                               March 28, 2025
+
+ 
+To get started, type doc.
+For product information, visit www.mathworks.com.
+ 
+Starting parallel pool (parpool) using the 'Processes' profile ...
+Preserving jobs with IDs: 1 because they contain crash dump files.
+You can use 'delete(myCluster.Jobs)' to remove all jobs created with profile Processes. To create 'myCluster' use 'myCluster = parcluster('Processes')'.
+Connected to parallel pool with 24 workers.
+Parallel pool using the 'Processes' profile is shutting down.

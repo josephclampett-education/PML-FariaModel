@@ -71,12 +71,13 @@ parfor i = 1:threadCount
     radProb = radBins ./ radCenters;
     radProb = radProb / length(r_data);
     
-    j0Domain = (0:0.02:4.8757);
+    j0Domain = (0:0.02:p.Rc);
     J0 = besselj(0, (2*pi) * j0Domain);
     
     hold on
     bar(radCenters, radProb, 'hist');
-    plot(j0Domain, abs(J0) * max(radProb));
+    plot(j0Domain, abs(J0) * max(radProb), Color="red");
+    xlim([0 p.Rc]);
     hold off
 
     exportgraphics(gca, pathId + "_radial_histogram.png");
