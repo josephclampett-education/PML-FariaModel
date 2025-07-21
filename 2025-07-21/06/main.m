@@ -14,7 +14,7 @@ BASE_DIRECTORY = "../..";
 addpath(BASE_DIRECTORY);
 
 % BATCH
-BATCH0_h1 = [0.2, 0.3, 0.5, 0.8] * 10^(-3);
+BATCH0_h1 = [0.2, 0.3, 0.5, 0.9] * 10^(-3);
 BATCH0_h0 = BATCH0_h1 + (5.46*10^(-3) - 0.61*10^(-3));
 BATCH1_R = linspace(2.37633, 2.8761, 5);
 
@@ -196,7 +196,7 @@ parfor i = 1:threadCount
     if ~isfolder(VAR_outputFolder)
         mkdir(VAR_outputFolder);
     end
-    saveFilePath = sprintf("%s/RES_mem=%f, N=%d, %s R=%f.mat", VAR_outputFolder, p.mem, p.n_drops, p.type, p.Rc);
+    saveFilePath = sprintf("%s/RES_N=%d, %s R=%f h1=%f.mat", VAR_outputFolder, p.n_drops, p.type, p.Rc, p.h1);
     fprintf("%s: Saving simulation results for %s.\n", datetime, saveFilePath);
     parsave(saveFilePath, p);
 end
