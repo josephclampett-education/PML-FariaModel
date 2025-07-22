@@ -27,15 +27,16 @@ for n = 1:p.nimpacts
     % Check to Make Sure Not Above Faraday Threshold
     eta_max = max(max(abs(eta)));
     if eta_max > 1
-        disp('Probably above threshold. Stopping simulation...');
-        break
-    end   
+        fprintf("%s: eta_max %f > 1 during simulation.\n", datetime, eta_max);
+        % break
+    end
 
     % Store Data
     x_data(n,:)     = xi; 
     y_data(n,:)     = yi; 
-    t_data(n)       = t; 
-    % Save wavefield for the last 10 period
+    t_data(n)       = t;
+    
+    % Save wavefield for the last 10 periods
     if n > p.nimpacts - p.n_save_wave
         eta_data(:,:, n - p.nimpacts + p.n_save_wave) = eta;
     end
