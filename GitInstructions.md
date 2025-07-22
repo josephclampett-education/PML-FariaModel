@@ -6,4 +6,5 @@
 `git status`
 
 # When you're ready to sync
-`git push` # Sends the file to GitHub
+`git push` # Pushes the changes to GitHub
+`git pull` # Pulls the commits to GitHub
