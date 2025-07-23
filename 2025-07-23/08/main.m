@@ -16,7 +16,7 @@ addpath(BASE_DIRECTORY);
 % BATCH
 BATCH0_h1 = [0.2, 0.1, 0.01] * 10^(-3);
 BATCH0_h0 = BATCH0_h1 + (5.46*10^(-3) - 0.61*10^(-3));
-BATCH1_dtScale = [10, 20, 50];
+BATCH1_dt_scale = [20, 50, 100];
 
 % BATH
 VAR_mem = 0.99;
@@ -39,6 +39,7 @@ VAR_initialSpeedScale = 0.01;
 
 % SIMULATION
 VAR_dtScale = 10;
+VAR_gridPerWavelength = 10;
 if isfile(BASE_DIRECTORY + "/ISLOCAL")
     VAR_nimpacts = 10;
     VAR_n_save_wave = 10;
@@ -53,12 +54,12 @@ VAR_outputFolder = "RES";
 %% ================================================================
 
 count0 = length(BATCH0_h1);
-count1 = length(BATCH1_R);
+count1 = length(BATCH1_dt_scale);
 threadCount = count0 * count1;
 
 outputData = [];
 
-for i = 1:threadCount
+parfor i = 1:threadCount
     %% Unpack Dispatch Parameters
     idx0 = mod((i - 1), count0) + 1;
     idx1 = floor((i - 1) / count0) + 1;
@@ -74,8 +75,8 @@ for i = 1:threadCount
     p.Ly = 2 * 8; % lambdaF
     
     % Grid Spacing
-    p.hx_desired = 0.1;                          % lambdaF
-    p.hy_desired = 0.1;                          % lambdaF
+    p.hx_desired = 1/VAR_gridPerWavelength;      % lambdaF
+    p.hy_desired = 1/VAR_gridPerWavelength;      % lambdaF
     p.hx         = p.Lx/ceil(p.Lx/p.hx_desired); % lambdaF
     p.hy         = p.Ly/ceil(p.Ly/p.hy_desired); % lambdaF
     
@@ -86,8 +87,9 @@ for i = 1:threadCount
       % round desired grid spacing to whole number of points per lambdaF
     
     % Time Step (for wave evolution)
-    p.dt_desired = min(p.hx,p.hy)^2 / BATCH1_dtScale(idx1);    % TF
-    p.dt         = 1/ceil(1/p.dt_desired); % TF
+    p.dt_scale = BATCH1_dt_scale(idx1)
+    p.dt_desired = min(p.hx,p.hy)^2 / p.dt_scale; % TF
+    p.dt         = 1/ceil(1/p.dt_desired);        % TF
     
     p.nsteps_impact = 1/p.dt; % dimensionless
     
@@ -125,7 +127,7 @@ for i = 1:threadCount
         fprintf("%s: Overriding threshold.\n", datetime);
         p.GamF = VAR_thresholdGuess;
     else
-        thresholdFile = sprintf("%s/threshold_cache/%f_%f_%f.mat", BASE_DIRECTORY, p.h0, p.h1, p.Rc);
+        thresholdFile = sprintf("%s/threshold_cache/%f_%f_%f_%d.mat", BASE_DIRECTORY, p.h0, p.h1, p.Rc, p.dt_scale);
         if isfile(thresholdFile)
           fprintf("%s: Cache hit, loading threshold for %s.\n", datetime, thresholdFile);
           gamFLoad = load(thresholdFile);
