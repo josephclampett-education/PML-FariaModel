@@ -14,7 +14,7 @@ BASE_DIRECTORY = "../..";
 addpath(BASE_DIRECTORY);
 
 % BATCH
-BATCH0_h1 = [0.2, 0.3, 0.5, 0.9] * 10^(-3);
+BATCH0_h1 = [0.01, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.9] * 10^(-3);
 BATCH0_h0 = BATCH0_h1 + (5.46*10^(-3) - 0.61*10^(-3));
 BATCH1_R = linspace(2.37633, 2.8761, 5);
 
