@@ -18,14 +18,23 @@ BASE_DIRECTORY = "../..";
 
 addpath(BASE_DIRECTORY);
 
+% <<< MATT >>> I've changed the value of the impact phase to account for
+% the change in definition of vibrational acceleration below. The new value
+% of theta might need to be tweaked, but it should be about the value that
+% I've listed below. I expect that we will have 1.35 <= theta/pi <= 1.55.
+% The closer theta gets to pi, the faster the droplet walks. The further
+% theta gets from pi, the slower the droplet walks. I used theta = 1.43 *
+% pi in the corral paper, for example.
+
 % BATCH
-BATCH_mem = [0.95, 0.98, 0.99, 0.995];
-BATCH_R = linspace(2.37633, 2.8761, 5);
+BATCH_mem =   [0.85 0.90 0.95 0.99];
+BATCH_theta = 1.35:0.02:1.55;
 
 % BATH
 VAR_type = 'circular_well';
-VAR_h0 = 5.46*10^(-3);
-VAR_h1 = 0.61*10^(-3);
+VAR_h0 = 5.46*10^(-3);  % in mm
+VAR_h1 = 0.61*10^(-3);  % in mm
+VAR_R  = 2.8761;        % in xF
 
 VAR_shouldOverrideThreshold = 0;
 VAR_thresholdGuess = 5.0166;
@@ -54,7 +63,7 @@ VAR_outputFolder = "RES";
 %% ================================================================
 
 count0 = length(BATCH_mem);
-count1 = length(BATCH_R);
+count1 = length(BATCH_theta);
 threadCount = count0 * count1;
 
 outputData = [];
@@ -101,7 +110,7 @@ for i = 1:threadCount
     % Topography
     p.type = VAR_type; % options: 'flat', 'square_well', 'circular_well'
     
-    radius = BATCH_R(idx1);
+    radius = VAR_R;
     switch p.type
         case 'flat'
             p.h0 = VAR_h0; % m (constant depth)
@@ -150,10 +159,7 @@ for i = 1:threadCount
       % only the mass matters since treated as a point for impacts
     
     % Impact Phase
-    % p.sin_theta = VAR_sin_theta;
-    % p.theta     = pi-asin(p.sin_theta);
-    p.sin_theta = nan;
-    p.theta     = VAR_theta * pi;
+    p.theta     = BATCH_theta(idx1) * pi;
     
       % Note:
       % effectively controls speed of drop given other parameters
@@ -180,7 +186,7 @@ for i = 1:threadCount
     p.phi0 = zeros(size(p.xx));
     
     % Set Memory
-    p.mem = VAR_mem;
+    p.mem = BATCH_mem(idx0);
     p.Gam = p.mem*p.GamF;
     
     % Set Number of Impacts (Simulation Time in TF)

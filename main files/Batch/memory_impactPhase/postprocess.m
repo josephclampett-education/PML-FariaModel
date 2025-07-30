@@ -11,33 +11,18 @@ VAR_outputFolder = "RES";
 
 %% ================================================================
 
-folders = dir(fullfile(VAR_outputFolder, "RES_*"));
-threadCount = length(folders);
+files = dir(fullfile(VAR_outputFolder, "*.mat"));
+threadCount = length(files);
 
 outputData = [];
 
-for i = 1:threadCount
-    folderPath = fullfile(folders(i).folder);
+parfor i = 1:threadCount
+    filePath = fullfile(files(i).folder, files(i).name);
+    loadP = load(filePath);
+    p = loadP.p;
 
-    % pathId is important for saving!
-    [pathstr, name, ext] = fileparts(folderPath);
-    pathId = fullfile(folderPath, name); % Add duplicate of innermost folder string
-
-    fileSearchPath = fullfile(folderPath, "*.mat");
-    files = dir(fileSearchPath);
-
-    x_data = [];
-    y_data = [];
-    for j = 1:numel(files)
-        filePath = fullfile(files(j).folder, files(j).name);
-        loadP = load(filePath);
-        p = loadP.p;
-
-        x_data = [x_data; p.x_data];
-        y_data = [y_data; p.y_data];
-    end
-    p.x_data = x_data;
-    p.y_data = y_data;
+    [pathstr, name, ext] = fileparts(filePath);
+    pathId = fullfile(pathstr, name);
 
     close all
 

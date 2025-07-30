@@ -18,16 +18,18 @@ BASE_DIRECTORY = "../..";
 
 addpath(BASE_DIRECTORY);
 
+
 % BATCH
-BATCH_mem = [0.95, 0.98, 0.99, 0.995];
-BATCH_R = linspace(2.37633, 2.8761, 5);
+BATCH_mem =   [0.85 0.90 0.95 0.99];
+BATCH_theta = 1.30:0.02:1.60;
 BATCH_mem = BATCH_mem(1);
-BATCH_R = BATCH_R(1);
+BATCH_theta = BATCH_theta(1);
 
 % BATH
 VAR_type = 'circular_well';
-VAR_h0 = 5.46*10^(-3);
-VAR_h1 = 0.61*10^(-3);
+VAR_h0 = 5.46*10^(-3);  % in mm
+VAR_h1 = 0.61*10^(-3);  % in mm
+VAR_R  = 2.8761;        % in xF
 
 VAR_shouldOverrideThreshold = 0;
 VAR_thresholdGuess = 5.0166;
@@ -35,7 +37,7 @@ VAR_thresholdGuess = 5.0166;
 % DROPLETS
 VAR_r = (0.36)*10^(-3);
 VAR_theta = 1.3;
-VAR_n_drops = 10;
+VAR_n_drops = 1;
 
 % INITIAL CONDITIONS
 VAR_initialRadiusScale = 0.80;
@@ -56,12 +58,12 @@ VAR_outputFolder = "RES";
 %% ================================================================
 
 count0 = length(BATCH_mem);
-count1 = length(BATCH_R);
+count1 = length(BATCH_theta);
 threadCount = count0 * count1;
 
 outputData = [];
 
-for i = 1:threadCount
+parfor i = 1:threadCount
     %% Unpack Dispatch Parameters
     idx0 = mod((i - 1), count0) + 1;
     idx1 = floor((i - 1) / count0) + 1;
@@ -103,7 +105,7 @@ for i = 1:threadCount
     % Topography
     p.type = VAR_type; % options: 'flat', 'square_well', 'circular_well'
     
-    radius = BATCH_R(idx1);
+    radius = VAR_R;
     switch p.type
         case 'flat'
             p.h0 = VAR_h0; % m (constant depth)
@@ -152,7 +154,7 @@ for i = 1:threadCount
       % only the mass matters since treated as a point for impacts
     
     % Impact Phase
-    p.theta     = VAR_theta * pi;
+    p.theta     = BATCH_theta(idx1) * pi;
     
       % Note:
       % effectively controls speed of drop given other parameters
