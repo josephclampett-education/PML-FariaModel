@@ -16,11 +16,13 @@ addpath(BASE_DIRECTORY);
 % BATCH
 BATCH0_h1 = [0.3] * 10^(-3);
 BATCH0_h0 = BATCH0_h1 + (5.46*10^(-3) - 0.61*10^(-3));
+% BATCH0_h0 = 5.46*10^(-3);
+% BATCH0_h1 = 5.46*10^(-3);
 BATCH1_R = linspace(2.37633, 2.8761, 5);
 BATCH1_R = BATCH1_R(5:5);
 
 % BATH
-VAR_mem = 0.95;
+VAR_mem = 0.60;
 VAR_type = 'circular_well';
 % VAR_R = 4.8757;
 % VAR_h0 = 5.46*10^(-3);
@@ -31,7 +33,7 @@ VAR_thresholdGuess = 5.0166;
 
 % DROPLETS
 VAR_r = (0.36)*10^(-3);
-VAR_sin_theta = 0.2;
+VAR_theta = 1.3;
 VAR_n_drops = 1;
 
 % INITIAL CONDITIONS
@@ -40,7 +42,7 @@ VAR_initialSpeedScale = 0.01;
 
 % SIMULATION
 if isfile(BASE_DIRECTORY + "/ISLOCAL")
-    VAR_nimpacts = 100;
+    VAR_nimpacts = 200;
     VAR_n_save_wave = 10;
 else
     VAR_nimpacts = 2;
@@ -72,10 +74,10 @@ for i = 1:threadCount
     % Domain Size
     p.Lx = 2 * 8; % lambdaF
     p.Ly = 2 * 8; % lambdaF
-    
+
     % Grid Spacing
-    p.hx_desired = 0.1;                          % lambdaF
-    p.hy_desired = 0.1;                          % lambdaF
+    p.hx_desired = p.Lx/128;                          % lambdaF
+    p.hy_desired = p.Ly/128;                          % lambdaF
     p.hx         = p.Lx/ceil(p.Lx/p.hx_desired); % lambdaF
     p.hy         = p.Ly/ceil(p.Ly/p.hy_desired); % lambdaF
     
@@ -149,8 +151,10 @@ for i = 1:threadCount
       % only the mass matters since treated as a point for impacts
     
     % Impact Phase
-    p.sin_theta = VAR_sin_theta;
-    p.theta     = pi-asin(p.sin_theta);
+    % p.sin_theta = VAR_sin_theta;
+    % p.theta     = pi-asin(p.sin_theta);
+    p.sin_theta = nan;
+    p.theta     = VAR_theta * pi;
     
       % Note:
       % effectively controls speed of drop given other parameters
@@ -167,10 +171,10 @@ for i = 1:threadCount
     randX = cos(randTheta);
     randY = sin(randTheta);
 
-    p.xi = zeros(1, p.n_drops); % randR .* randX;
-    p.yi = zeros(1, p.n_drops); % randR .* randY;
-    p.ui = 8*10^(-3) * p.lambdaF / p.TF * ones(1, p.n_drops); % VAR_initialSpeedScale * rand(1,p.n_drops);
-    p.vi = 0                     * ones(1, p.n_drops); % VAR_initialSpeedScale * rand(1,p.n_drops);
+    p.xi = 0.1 + zeros(1, p.n_drops); % randR .* randX;
+    p.yi = 1.0 + zeros(1, p.n_drops); % randR .* randY;
+    p.ui = 20*10^(-3) * p.lambdaF / p.TF * ones(1, p.n_drops); % VAR_initialSpeedScale * rand(1,p.n_drops);
+    p.vi = 0*10^(-3) * p.lambdaF / p.TF * ones(1, p.n_drops); % VAR_initialSpeedScale * rand(1,p.n_drops);
     
     % Set Wave Initial Conditions
     p.eta0 = zeros(size(p.xx));

@@ -16,7 +16,7 @@ threadCount = length(files);
 
 outputData = [];
 
-parfor i = 1:threadCount
+for i = 1:threadCount
     filePath = fullfile(files(i).folder, files(i).name);
     loadP = load(filePath);
     p = loadP.p;

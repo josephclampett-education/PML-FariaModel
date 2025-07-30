@@ -86,7 +86,18 @@ for i = 1:threadCount
     figure(3)
     hold on
     for j = 1:size(p.x_data, 2)
-        plot(p.x_data(:, j), p.y_data(:, j));
+        xs = p.x_data(:, j);
+        ys = p.y_data(:, j);
+
+        x_diff = diff(xs);
+        y_diff = diff(ys);
+
+        v_data = sqrt(x_diff .^ 2 + y_diff .^ 2);
+
+        v_data = v_data * p.lambdaF / p.TF;
+
+        cline(xs(2:end), ys(2:end), v_data);
+        colorbar
     end
     viscircles([0, 0], [p.Rc], 'LineWidth', 0.2, 'LineStyle','--');
     hold off

@@ -14,13 +14,13 @@ BASE_DIRECTORY = "../..";
 addpath(BASE_DIRECTORY);
 
 % BATCH
-BATCH0_h1 = [0.2] * 10^(-3);
+BATCH0_h1 = [0.3] * 10^(-3);
 BATCH0_h0 = BATCH0_h1 + (5.46*10^(-3) - 0.61*10^(-3));
 BATCH1_R = linspace(2.37633, 2.8761, 5);
-BATCH1_R = BATCH1_R(4:4);
+BATCH1_R = BATCH1_R(5:5);
 
 % BATH
-VAR_mem = 0.70;
+VAR_mem = 0.95;
 VAR_type = 'circular_well';
 % VAR_R = 4.8757;
 % VAR_h0 = 5.46*10^(-3);
@@ -40,7 +40,7 @@ VAR_initialSpeedScale = 0.01;
 
 % SIMULATION
 if isfile(BASE_DIRECTORY + "/ISLOCAL")
-    VAR_nimpacts = 80;
+    VAR_nimpacts = 100;
     VAR_n_save_wave = 10;
 else
     VAR_nimpacts = 2;
@@ -167,10 +167,10 @@ for i = 1:threadCount
     randX = cos(randTheta);
     randY = sin(randTheta);
 
-    p.xi = randR .* randX;
-    p.yi = randR .* randY;
-    p.ui = VAR_initialSpeedScale * rand(1,p.n_drops);
-    p.vi = VAR_initialSpeedScale * rand(1,p.n_drops);
+    p.xi = zeros(1, p.n_drops); % randR .* randX;
+    p.yi = zeros(1, p.n_drops); % randR .* randY;
+    p.ui = 8*10^(-3) * p.lambdaF / p.TF * ones(1, p.n_drops); % VAR_initialSpeedScale * rand(1,p.n_drops);
+    p.vi = 0                     * ones(1, p.n_drops); % VAR_initialSpeedScale * rand(1,p.n_drops);
     
     % Set Wave Initial Conditions
     p.eta0 = zeros(size(p.xx));
