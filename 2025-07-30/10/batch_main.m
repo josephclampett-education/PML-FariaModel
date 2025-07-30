@@ -24,8 +24,8 @@ BATCH_R = linspace(2.37633, 2.8761, 5);
 
 % BATH
 VAR_type = 'circular_well';
-VAR_h0 = 5.46*10^(-3);
-VAR_h1 = 0.61*10^(-3);
+VAR_h1 = 0.356*10^(-3);
+VAR_h0 = VAR_h1 + 4.850*10^(-3);
 
 VAR_shouldOverrideThreshold = 0;
 VAR_thresholdGuess = 5.0166;
@@ -83,8 +83,8 @@ for i = 1:threadCount
     p.Nx = p.Lx/p.hx; % dimensionless
     p.Ny = p.Ly/p.hy; % dimensionless
     
-      % Note:
-      % round desired grid spacing to whole number of points per lambdaF
+    % Note:
+    % round desired grid spacing to whole number of points per lambdaF
     
     % Time Step (for wave evolution)
     p.dt_desired = min(p.hx,p.hy)^2/10;    % TF
