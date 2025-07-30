@@ -53,7 +53,7 @@ if isfile(BASE_DIRECTORY + "/ISLOCAL")
     VAR_nimpacts = 200;
     VAR_n_save_wave = 10;
 else
-    VAR_nimpacts = 40 * 60 * 20 / 10;
+    VAR_nimpacts = 1000;
     VAR_n_save_wave = 10;
 end
 
