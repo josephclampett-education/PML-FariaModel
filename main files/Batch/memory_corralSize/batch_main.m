@@ -1,3 +1,6 @@
+function batch_main(IN_batchIndex)
+
+
 % 2025-07-30
 % Find that incorrect phase causes the escape of droplets from the well
 % Joey & Xinyun
@@ -201,6 +204,8 @@ parfor i = 1:threadCount
     fprintf("%s: Saving simulation results for %s.\n", datetime, saveFilePath);
     parsave(saveFilePath, p);
 end
+
+end 
 
 %% Hack to allow saving inside parfor
 function parsave(fname, p)
