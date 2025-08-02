@@ -28,13 +28,15 @@ addpath(BASE_DIRECTORY);
 
 % BATCH
 BATCH_mem =   [0.85 0.90 0.95 0.99];
-BATCH_theta = 1.35:0.02:1.55;
+BATCH_theta = 1.20:0.02:1.55;
 
 % BATH
 VAR_type = 'circular_well';
-VAR_h0 = 5.46*10^(-3);  % in mm
-VAR_h1 = 0.61*10^(-3);  % in mm
-VAR_R  = 2.8761;        % in xF
+
+VAR_h0 = 4.85*10^(-3);    % mm
+VAR_h1 = 0.20*10^(-3);    % mm
+VAR_h0 = VAR_h0 + VAR_h1;
+VAR_R  = 2.8761;          % in xF
 
 VAR_shouldOverrideThreshold = 0;
 VAR_thresholdGuess = 5.0166;
@@ -203,10 +205,14 @@ parfor i = 1:threadCount
     p = simulate(p);
 
     %% Output Results
-    if ~isfolder(VAR_outputFolder)
-        mkdir(VAR_outputFolder);
+    
+    outputSubfolder = sprintf("RES_N=%d, mem=%.2f, %s R=%.2f h0=%.2f h1=%.2f, theta=%.2f", p.n_drops, p.mem * 100, p.type, p.Rc, p.h0 * 1000, p.h1 * 1000, p.theta / pi);
+    outputFolder = fullfile(VAR_outputFolder, outputSubfolder)
+    if ~isfolder(outputFolder)
+        mkdir(outputFolder);
     end
-    saveFilePath = sprintf("%s/RES_N=%d, %s R=%f h1=%f.mat", VAR_outputFolder, p.n_drops, p.type, p.Rc, p.h1);
+    outputFileName = sprintf("RES.mat");
+    saveFilePath = fullfile(outputFolder, outputFileName);
     fprintf("%s: Saving simulation results for %s.\n", datetime, saveFilePath);
     parsave(saveFilePath, p);
 end
