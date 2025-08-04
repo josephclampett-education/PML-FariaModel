@@ -16,8 +16,8 @@ threadCount = length(folders);
 
 outputData = [];
 
-for i = 1:threadCount
-    folderPath = fullfile(folders(i).folder);
+parfor i = 1:threadCount
+    folderPath = fullfile(folders(i).folder, folders(i).name);
 
     % pathId is important for saving!
     [pathstr, name, ext] = fileparts(folderPath);

@@ -1,4 +1,4 @@
-% 2025-07-30
+% 2025-07-23
 % Find that incorrect phase causes the escape of droplets from the well
 % Joey & Xinyun
 
@@ -27,20 +27,24 @@ addpath(BASE_DIRECTORY);
 % pi in the corral paper, for example.
 
 % BATCH
-BATCH_mem =   [0.85 0.90 0.95 0.99];
-BATCH_theta = 1.35:0.02:1.55;
+BATCH_h1 = [0.05 0.1 0.15 0.2] * 10^(-3);
+BATCH_theta = 0.85:0.02:1.35;
 
 % BATH
 VAR_type = 'circular_well';
-VAR_h0 = 5.46*10^(-3);  % in mm
-VAR_h1 = 0.61*10^(-3);  % in mm
-VAR_R  = 2.8761;        % in xF
+
+VAR_h0_base = 4.85*10^(-3);    % mm
+% VAR_h1 = 0.20*10^(-3);    % mm
+VAR_R  = 2.8761;          % in xF
+
+VAR_mem = 0.95;
 
 VAR_shouldOverrideThreshold = 0;
 VAR_thresholdGuess = 5.0166;
 
 % DROPLETS
 VAR_r = (0.36)*10^(-3);
+% VAR_theta = 1.3;
 VAR_n_drops = 1;
 
 % INITIAL CONDITIONS
@@ -61,7 +65,7 @@ VAR_outputFolder = "RES";
 
 %% ================================================================
 
-count0 = length(BATCH_mem);
+count0 = length(BATCH_h1);
 count1 = length(BATCH_theta);
 threadCount = count0 * count1;
 
@@ -112,8 +116,8 @@ parfor i = 1:threadCount
     radius = VAR_R;
     switch p.type
         case 'flat'
-            p.h0 = VAR_h0; % m (constant depth)
-            p.h1 = p.h0;
+            p.h1 = VAR_h0_base;
+            p.h0 = VAR_h0_base; % m (constant depth)
             p.Rc = radius; % lambdaF (droplet corral radius)
             p.Dc = p.Rc*2; % lambdaF (droplet corral diameter)
         case 'square_well'
@@ -121,8 +125,8 @@ parfor i = 1:threadCount
             p.h1 = 1.5*10^(-4); % m (exterior depth)
             p.Lt = 4;           % lambdaF (well width)
         case 'circular_well'
-            p.h0 = VAR_h0 ; % m (interior depth)
-            p.h1 = VAR_h1 ; % m (exterior depth)
+            p.h1 = BATCH_h1(idx0);             % m (interior depth)
+            p.h0 = VAR_h0_base + p.h1; % m (exterior depth)
             p.Rc = radius;  % lambdaF (well radius)
             p.Dc = p.Rc*2;  % lambdaF (well diameter)
     end
@@ -185,7 +189,7 @@ parfor i = 1:threadCount
     p.phi0 = zeros(size(p.xx));
     
     % Set Memory
-    p.mem = BATCH_mem(idx0);
+    p.mem = VAR_mem;
     p.Gam = p.mem*p.GamF;
     
     % Set Number of Impacts (Simulation Time in TF)
@@ -202,10 +206,14 @@ parfor i = 1:threadCount
     p = simulate(p);
 
     %% Output Results
-    if ~isfolder(VAR_outputFolder)
-        mkdir(VAR_outputFolder);
+    
+    outputSubfolder = sprintf("RES_N=%d, mem=%.2f, %s R=%.2f h0=%.2f h1=%.2f, theta=%.2f", p.n_drops, p.mem * 100, p.type, p.Rc, p.h0 * 1000, p.h1 * 1000, p.theta / pi);
+    outputFolder = fullfile(VAR_outputFolder, outputSubfolder)
+    if ~isfolder(outputFolder)
+        mkdir(outputFolder);
     end
-    saveFilePath = sprintf("%s/RES_N=%d %s R=%f h1=%f theta=%f.mat", VAR_outputFolder, p.n_drops, p.type, p.Rc, p.h1, p.theta/pi);
+    outputFileName = sprintf("RES.mat");
+    saveFilePath = fullfile(outputFolder, outputFileName);
     fprintf("%s: Saving simulation results for %s.\n", datetime, saveFilePath);
     parsave(saveFilePath, p);
 end

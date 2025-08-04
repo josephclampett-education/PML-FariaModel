@@ -27,8 +27,9 @@ BATCH_R = linspace(2.37633, 2.8761, 5);
 
 % BATH
 VAR_type = 'flat';
-VAR_h0 = 5.46*10^(-3);
-VAR_h1 = 0.61*10^(-3);
+VAR_h0 = 4.85*10^(-3);
+VAR_h1 = 0.20*10^(-3);
+VAR_h0 = VAR_h0 + VAR_h1;
 
 VAR_shouldOverrideThreshold = 0;
 VAR_thresholdGuess = 5.0166;
@@ -44,8 +45,8 @@ VAR_initialSpeedScale = 0.01;
 
 % SIMULATION
 if isfile(BASE_DIRECTORY + "/ISLOCAL")
-    VAR_nimpacts = 200;
-    VAR_n_save_wave = 10;
+    VAR_nimpacts = 2;
+    VAR_n_save_wave = 1;
 else
     VAR_nimpacts = 40 * 60 * 20 / 10;
     VAR_n_save_wave = 10;
@@ -59,6 +60,11 @@ VAR_outputFolder = "RES";
 count0 = length(BATCH_mem);
 count1 = length(BATCH_R);
 threadCount = count0 * count1;
+
+% Only do one run if using on local
+if isfile(BASE_DIRECTORY + "/ISLOCAL")
+  threadCount = 1;
+end
 
 outputData = [];
 
@@ -197,10 +203,14 @@ parfor i = 1:threadCount
     p = simulate(p);
 
     %% Output Results
-    if ~isfolder(VAR_outputFolder)
-        mkdir(VAR_outputFolder);
+    
+    outputSubfolder = sprintf("RES_N=%d, mem=%.2f, %s R=%.2f h0=%.2f h1=%.2f, theta=%.2f", p.n_drops, p.mem * 100, p.type, p.Rc, p.h0 * 1000, p.h1 * 1000, p.theta / pi);
+    outputFolder = fullfile(VAR_outputFolder, outputSubfolder)
+    if ~isfolder(outputFolder)
+        mkdir(outputFolder);
     end
-    saveFilePath = sprintf("%s/RES_N=%d, %s R=%f h1=%f.mat", VAR_outputFolder, p.n_drops, p.type, p.Rc, p.h1);
+    outputFileName = sprintf("RES_%d.mat", IN_batchIndex);
+    saveFilePath = fullfile(outputFolder, outputFileName);
     fprintf("%s: Saving simulation results for %s.\n", datetime, saveFilePath);
     parsave(saveFilePath, p);
 end

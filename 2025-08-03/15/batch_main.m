@@ -1,8 +1,5 @@
-% 2025-07-30
-% Find that incorrect phase causes the escape of droplets from the well
-% Joey & Xinyun
+function batch_main(IN_batchIndex)
 
-%
 % ================================================================
 % REMINDERS
 % ================================================================
@@ -18,26 +15,23 @@ BASE_DIRECTORY = "../..";
 
 addpath(BASE_DIRECTORY);
 
-
 % BATCH
-BATCH_mem =   [0.85 0.90 0.95 0.99];
-BATCH_theta = 1.30:0.02:1.60;
-BATCH_mem = BATCH_mem(1);
-BATCH_theta = BATCH_theta(1);
+BATCH_mem = [0.95, 0.98, 0.99, 0.995];
+BATCH_R = linspace(2.37633, 2.8761, 5);
 
 % BATH
 VAR_type = 'circular_well';
-VAR_h0 = 5.46*10^(-3);  % in mm
-VAR_h1 = 0.61*10^(-3);  % in mm
-VAR_R  = 2.8761;        % in xF
+VAR_h0 = 4.85*10^(-3);
+VAR_h1 = 0.20*10^(-3);
+VAR_h0 = VAR_h0 + VAR_h1;
 
 VAR_shouldOverrideThreshold = 0;
 VAR_thresholdGuess = 5.0166;
 
 % DROPLETS
 VAR_r = (0.36)*10^(-3);
-VAR_theta = 1.3;
-VAR_n_drops = 1;
+VAR_theta = 1.2;
+VAR_n_drops = 10;
 
 % INITIAL CONDITIONS
 VAR_initialRadiusScale = 0.80;
@@ -45,8 +39,8 @@ VAR_initialSpeedScale = 0.01;
 
 % SIMULATION
 if isfile(BASE_DIRECTORY + "/ISLOCAL")
-    VAR_nimpacts = 200;
-    VAR_n_save_wave = 10;
+    VAR_nimpacts = 2;
+    VAR_n_save_wave = 1;
 else
     VAR_nimpacts = 40 * 60 * 20 / 10;
     VAR_n_save_wave = 10;
@@ -58,12 +52,17 @@ VAR_outputFolder = "RES";
 %% ================================================================
 
 count0 = length(BATCH_mem);
-count1 = length(BATCH_theta);
+count1 = length(BATCH_R);
 threadCount = count0 * count1;
+
+% Only do one run if using on local
+if isfile(BASE_DIRECTORY + "/ISLOCAL")
+  threadCount = 1;
+end
 
 outputData = [];
 
-for i = 1:threadCount
+parfor i = 1:threadCount
     %% Unpack Dispatch Parameters
     idx0 = mod((i - 1), count0) + 1;
     idx1 = floor((i - 1) / count0) + 1;
@@ -105,7 +104,7 @@ for i = 1:threadCount
     % Topography
     p.type = VAR_type; % options: 'flat', 'square_well', 'circular_well'
     
-    radius = VAR_R;
+    radius = BATCH_R(idx1);
     switch p.type
         case 'flat'
             p.h0 = VAR_h0; % m (constant depth)
@@ -154,7 +153,7 @@ for i = 1:threadCount
       % only the mass matters since treated as a point for impacts
     
     % Impact Phase
-    p.theta     = BATCH_theta(idx1) * pi;
+    p.theta     = VAR_theta * pi;
     
       % Note:
       % effectively controls speed of drop given other parameters
@@ -198,13 +197,19 @@ for i = 1:threadCount
     p = simulate(p);
 
     %% Output Results
-    if ~isfolder(VAR_outputFolder)
-        mkdir(VAR_outputFolder);
+    
+    outputSubfolder = sprintf("RES_N=%d, mem=%.2f, %s R=%.2f h0=%.2f h1=%.2f, theta=%.2f", p.n_drops, p.mem * 100, p.type, p.Rc, p.h0 * 1000, p.h1 * 1000, p.theta / pi);
+    outputFolder = fullfile(VAR_outputFolder, outputSubfolder)
+    if ~isfolder(outputFolder)
+        mkdir(outputFolder);
     end
-    saveFilePath = sprintf("%s/RES_N=%d, %s R=%f h1=%f.mat", VAR_outputFolder, p.n_drops, p.type, p.Rc, p.h1);
+    outputFileName = sprintf("RES_%d.mat", IN_batchIndex);
+    saveFilePath = fullfile(outputFolder, outputFileName);
     fprintf("%s: Saving simulation results for %s.\n", datetime, saveFilePath);
     parsave(saveFilePath, p);
 end
+
+end 
 
 %% Hack to allow saving inside parfor
 function parsave(fname, p)
