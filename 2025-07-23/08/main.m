@@ -14,9 +14,9 @@ BASE_DIRECTORY = "../..";
 addpath(BASE_DIRECTORY);
 
 % BATCH
-BATCH0_h1 = [0.2, 0.1, 0.01] * 10^(-3);
+BATCH0_h1 = [0.3, 0.2] * 10^(-3);
 BATCH0_h0 = BATCH0_h1 + (5.46*10^(-3) - 0.61*10^(-3));
-BATCH1_dt_scale = [20, 50, 100];
+BATCH1_dt_scale = [20, 50];
 
 % BATH
 VAR_mem = 0.99;
@@ -41,7 +41,7 @@ VAR_initialSpeedScale = 0.01;
 VAR_dtScale = 10;
 VAR_gridPerWavelength = 10;
 if isfile(BASE_DIRECTORY + "/ISLOCAL")
-    VAR_nimpacts = 10;
+    VAR_nimpacts = 80;
     VAR_n_save_wave = 10;
 else
     VAR_nimpacts = 2;
