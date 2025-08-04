@@ -21,7 +21,7 @@ parfor i = 1:threadCount
 
     % pathId is important for saving!
     [pathstr, name, ext] = fileparts(folderPath);
-    pathId = fullfile(folderPath, name + ext); % Add duplicate of innermost folder string
+    pathId = fullfile(folderPath, strcat(name, ext)); % Add duplicate of innermost folder string
 
     fileSearchPath = fullfile(folderPath, "*.mat");
     files = dir(fileSearchPath);

@@ -1,8 +1,3 @@
-% 2025-07-23
-% Find that incorrect phase causes the escape of droplets from the well
-% Joey & Xinyun
-
-%
 % ================================================================
 % REMINDERS
 % ================================================================
@@ -53,7 +48,7 @@ VAR_initialSpeedScale = 0.01;
 
 % SIMULATION
 if isfile(BASE_DIRECTORY + "/ISLOCAL")
-    VAR_nimpacts = 200;
+    VAR_nimpacts = 10;
     VAR_n_save_wave = 10;
 else
     VAR_nimpacts = 40*60;
@@ -68,6 +63,11 @@ VAR_outputFolder = "RES";
 count0 = length(BATCH_h1);
 count1 = length(BATCH_theta);
 threadCount = count0 * count1;
+
+% Only do one run if using on local
+if isfile(BASE_DIRECTORY + "/ISLOCAL")
+  threadCount = 1;
+end
 
 outputData = [];
 
