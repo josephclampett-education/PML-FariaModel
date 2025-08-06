@@ -1,5 +1,3 @@
-function batch_main(IN_batchIndex)
-
 % ================================================================
 % REMINDERS
 % ================================================================
@@ -15,26 +13,34 @@ BASE_DIRECTORY = "../..";
 
 addpath(BASE_DIRECTORY);
 
+% <<< MATT >>> I've changed the value of the impact phase to account for
+% the change in definition of vibrational acceleration below. The new value
+% of theta might need to be tweaked, but it should be about the value that
+% I've listed below. I expect that we will have 1.35 <= theta/pi <= 1.55.
+% The closer theta gets to pi, the faster the droplet walks. The further
+% theta gets from pi, the slower the droplet walks. I used theta = 1.43 *
+% pi in the corral paper, for example.
+
 % BATCH
-BATCH_h1 = [0.05 0.1 0.15 0.2] * 10^(-3);
-BATCH_R = linspace(2.37633, 2.8761, 5);
+BATCH_h1 = [0.1] * 10^(-3);
+BATCH_theta = [1.20];
 
 % BATH
 VAR_type = 'circular_well';
 
 VAR_h0_base = 4.85*10^(-3);    % mm
 % VAR_h1 = 0.20*10^(-3);    % mm
-% VAR_R  = 2.8761;          % in xF
+VAR_R  = 2.8761;          % in xF
 
-VAR_mem = 0.99;
+VAR_mem = 0.95;
 
 VAR_shouldOverrideThreshold = 0;
 VAR_thresholdGuess = 5.0166;
 
 % DROPLETS
 VAR_r = (0.36)*10^(-3);
-VAR_theta = 1.2;
-VAR_n_drops = 10;
+% VAR_theta = 1.3;
+VAR_n_drops = 1;
 
 % INITIAL CONDITIONS
 VAR_initialRadiusScale = 0.80;
@@ -45,7 +51,7 @@ if isfile(BASE_DIRECTORY + "/ISLOCAL")
     VAR_nimpacts = 10;
     VAR_n_save_wave = 10;
 else
-    VAR_nimpacts = 40 * 60 * 20 / 10;
+    VAR_nimpacts = 40*60;
     VAR_n_save_wave = 10;
 end
 
@@ -55,7 +61,7 @@ VAR_outputFolder = "RES";
 %% ================================================================
 
 count0 = length(BATCH_h1);
-count1 = length(BATCH_R);
+count1 = length(BATCH_theta);
 threadCount = count0 * count1;
 
 % Only do one run if using on local
@@ -65,7 +71,7 @@ end
 
 outputData = [];
 
-parfor i = 1:threadCount
+for i = 1:threadCount
     %% Unpack Dispatch Parameters
     idx0 = mod((i - 1), count0) + 1;
     idx1 = floor((i - 1) / count0) + 1;
@@ -107,7 +113,7 @@ parfor i = 1:threadCount
     % Topography
     p.type = VAR_type; % options: 'flat', 'square_well', 'circular_well'
     
-    radius = BATCH_R(idx1);
+    radius = VAR_R;
     switch p.type
         case 'flat'
             p.h1 = VAR_h0_base;
@@ -156,7 +162,7 @@ parfor i = 1:threadCount
       % only the mass matters since treated as a point for impacts
     
     % Impact Phase
-    p.theta     = VAR_theta * pi;
+    p.theta     = BATCH_theta(idx1) * pi;
     
       % Note:
       % effectively controls speed of drop given other parameters
@@ -206,13 +212,11 @@ parfor i = 1:threadCount
     if ~isfolder(outputFolder)
         mkdir(outputFolder);
     end
-    outputFileName = sprintf("RES_%d.mat", IN_batchIndex);
+    outputFileName = sprintf("RES.mat");
     saveFilePath = fullfile(outputFolder, outputFileName);
     fprintf("%s: Saving simulation results for %s.\n", datetime, saveFilePath);
     parsave(saveFilePath, p);
 end
-
-end 
 
 %% Hack to allow saving inside parfor
 function parsave(fname, p)
