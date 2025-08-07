@@ -30,7 +30,7 @@ VAR_type = 'circular_well';
 
 VAR_h0_base = 4.85*10^(-3);    % mm
 % VAR_h1 = 0.20*10^(-3);    % mm
-VAR_R  = 2.8761;          % in xF
+VAR_R  = 2.376330;          % in xF
 
 VAR_mem = 0.95;
 
@@ -87,8 +87,8 @@ for i = 1:threadCount
     p.Ly = 2 * 8; % lambdaF
 
     % Grid Spacing
-    p.hx_desired = p.Lx/128;                          % lambdaF
-    p.hy_desired = p.Ly/128;                          % lambdaF
+    p.hx_desired = p.Lx/256;                          % lambdaF
+    p.hy_desired = p.Ly/256;                          % lambdaF
     p.hx         = p.Lx/ceil(p.Lx/p.hx_desired); % lambdaF
     p.hy         = p.Ly/ceil(p.Ly/p.hy_desired); % lambdaF
     
@@ -150,72 +150,6 @@ for i = 1:threadCount
           parsave_gamf(thresholdFile, GamF);
         end
     end
-    
-    %% Set Drop Parameters & Initial Conditions
-    
-    % Drop Size
-    p.drop_radius  = VAR_r;                                   % m
-    p.drop_density = 949;                                     % kg/m^3
-    p.drop_mass    = (4/3)*pi*p.drop_radius^3*p.drop_density; % kg
-    
-      % Note:
-      % only the mass matters since treated as a point for impacts
-    
-    % Impact Phase
-    p.theta     = BATCH_theta(idx1) * pi;
-    
-      % Note:
-      % effectively controls speed of drop given other parameters
-      % optional: can choose a phase to match speed shown in experiments
-    
-    % Number of Drops
-    p.n_drops = VAR_n_drops;
-    
-    % Set Drop Initial Conditions
-    randTheta = 2*pi*rand(1,p.n_drops);
-    adjustedMaxRandR = VAR_initialRadiusScale * p.Rc;
-    randR = adjustedMaxRandR*sqrt(rand(1,p.n_drops));
-
-    randX = cos(randTheta);
-    randY = sin(randTheta);
-
-    p.xi = randR .* randX;
-    p.yi = randR .* randY;
-    p.ui = VAR_initialSpeedScale * rand(1,p.n_drops);
-    p.vi = VAR_initialSpeedScale * rand(1,p.n_drops);
-    
-    % Set Wave Initial Conditions
-    p.eta0 = zeros(size(p.xx));
-    p.phi0 = zeros(size(p.xx));
-    
-    % Set Memory
-    p.mem = VAR_mem;
-    p.Gam = p.mem*p.GamF;
-    
-    % Set Number of Impacts (Simulation Time in TF)
-    p.nimpacts = VAR_nimpacts;
-    
-    p = drop_params(p);
-
-    % Save Parameters
-    p.n_save_wave = VAR_n_save_wave;
-    
-    %% Run Simulation
-    
-    fprintf("%s: Beginning simulation.\n", datetime);
-    p = simulate(p);
-
-    %% Output Results
-    
-    outputSubfolder = sprintf("RES_N=%d, mem=%.2f, %s R=%.2f h0=%.2f h1=%.2f, theta=%.2f", p.n_drops, p.mem * 100, p.type, p.Rc, p.h0 * 1000, p.h1 * 1000, p.theta / pi);
-    outputFolder = fullfile(VAR_outputFolder, outputSubfolder)
-    if ~isfolder(outputFolder)
-        mkdir(outputFolder);
-    end
-    outputFileName = sprintf("RES.mat");
-    saveFilePath = fullfile(outputFolder, outputFileName);
-    fprintf("%s: Saving simulation results for %s.\n", datetime, saveFilePath);
-    parsave(saveFilePath, p);
 end
 
 %% Hack to allow saving inside parfor
