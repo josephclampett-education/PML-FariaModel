@@ -2,11 +2,29 @@ function is_stable = faraday_evolve(p,Gam)
 
 % Initial Wave Conditions
 pert = 10^(-5);
-eta  = pert.*besselj(0,2*pi.*sqrt(p.xx.^2+p.yy.^2));
-phi  = zeros(size(p.xx));
+if isfield(p, "threshold_perturbation_type")
+    switch p.threshold_perturbation_type
+        case 'bessel'
+            eta  = pert.*besselj(0,2*pi.*sqrt(p.xx.^2+p.yy.^2));
+        case 'gaussians'
+            eta = zeros(size(p.xx));
+            num_deltas = 10;
+            for i = 1:num_deltas
+                sigma = 0.1;
 
-  % Note:
-  % Could use gaussian instead of bessel perturbation
+                r = p.Rc * sqrt(rand());
+                theta = 2 * pi * rand();
+                x = r .* cos(theta);
+                y = r .* sin(theta);
+
+                r = sqrt((p.xx - x).^2 + (p.yy - y).^2);
+                eta = eta + pert .* exp(-r.^2 / (2 * sigma^2));
+            end
+    end
+else
+    eta  = pert.*besselj(0,2*pi.*sqrt(p.xx.^2+p.yy.^2));
+end
+phi  = zeros(size(p.xx));
 
 % Fourier Transform of Initial Conditions
 phi_hat = fft2(phi);               
@@ -27,11 +45,11 @@ for n = 1:p.nF
     eta_max = max(max(abs(eta)));
     
     if eta_max > 10*pert
-        disp('Probably above threshold. Stopping simulation...');
+        fprintf("%s: eta_max %f >> perturbation for Gam %.2f at n = %d. Concluding unstable.\n", datetime, eta_max, Gam, n);
         is_stable = 0;
         break
     elseif eta_max < pert/10
-        disp('Probably below threshold. Stopping simulation...');
+        fprintf("%s: eta_max %f << perturbation for Gam %.2f at n = %d.  Concluding stable.\n", datetime, eta_max, Gam, n);
         is_stable = 1;
         break
     end
