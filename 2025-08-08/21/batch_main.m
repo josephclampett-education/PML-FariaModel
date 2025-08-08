@@ -1,9 +1,17 @@
+function batch_main(IN_batchIndex)
+
 % ================================================================
 % REMINDERS
 % ================================================================
 
 % Make sure to always check that the core loop is parfor not for!
 % If making a new run id (ex: 09 or 51) make sure to notify one on Slack
+
+% ================================================================
+% CONSTS
+% ================================================================
+
+CONST_RLIST = [2.37633, (2.37633 + 2.62138) / 2, 2.62138, (2.62138 + 2.87610) / 2, 2.87610];
 
 % ================================================================
 % PARAMS
@@ -14,38 +22,39 @@ BASE_DIRECTORY = "../..";
 addpath(BASE_DIRECTORY);
 
 % BATCH
-BATCH0_h1 = [0.3, 0.2] * 10^(-3);
-BATCH0_h0 = BATCH0_h1 + (5.46*10^(-3) - 0.61*10^(-3));
-BATCH1_dt_scale = [20, 50];
+BATCH_h1 = [0.1 0.2 0.3 0.4 0.6 0.8]*10^(-3);
+BATCH_R = CONST_RLIST;
 
 % BATH
-VAR_mem = 0.99;
 VAR_type = 'circular_well';
-VAR_R = 2.8761;
-% VAR_h0 = 5.46*10^(-3);
-% VAR_h1 = 0.61*10^(-3);
+
+VAR_h0_base = 4.85*10^(-3); % mm
+% VAR_h1 = 0.20*10^(-3);      % mm
+% VAR_R  = 2.626215;          % in xF
+
+VAR_mem = 0.99;
 
 VAR_shouldOverrideThreshold = 0;
 VAR_thresholdGuess = 5.0166;
 
 % DROPLETS
 VAR_r = (0.36)*10^(-3);
-VAR_sin_theta = 0.2;
-VAR_n_drops = 1;
+VAR_theta = 1.25;
+VAR_n_drops = 10;
 
 % INITIAL CONDITIONS
 VAR_initialRadiusScale = 0.80;
 VAR_initialSpeedScale = 0.01;
 
 % SIMULATION
-VAR_dtScale = 10;
-VAR_gridPerWavelength = 10;
+VAR_domainWidth = 2 * 8;
+VAR_gridPerWave = 8;
 if isfile(BASE_DIRECTORY + "/ISLOCAL")
-    VAR_nimpacts = 80;
-    VAR_n_save_wave = 10;
+  VAR_nimpacts = 10;
+  VAR_n_save_wave = 10;
 else
-    VAR_nimpacts = 2;
-    VAR_n_save_wave = 1;
+  VAR_nimpacts = 40 * 60 * 20 / 10;
+  VAR_n_save_wave = 10;
 end
 
 % Saving
@@ -53,9 +62,14 @@ VAR_outputFolder = "RES";
 
 %% ================================================================
 
-count0 = length(BATCH0_h1);
-count1 = length(BATCH1_dt_scale);
+count0 = length(BATCH_h1);
+count1 = length(BATCH_R);
 threadCount = count0 * count1;
+
+% Only do one run if using on local
+if isfile(BASE_DIRECTORY + "/ISLOCAL")
+  threadCount = 1;
+end
 
 outputData = [];
 
@@ -71,12 +85,12 @@ parfor i = 1:threadCount
     %% Set Topography Parameters
     
     % Domain Size
-    p.Lx = 2 * 8; % lambdaF
-    p.Ly = 2 * 8; % lambdaF
-    
+    p.Lx = VAR_domainWidth; % lambdaF
+    p.Ly = VAR_domainWidth; % lambdaF
+
     % Grid Spacing
-    p.hx_desired = 1/VAR_gridPerWavelength;      % lambdaF
-    p.hy_desired = 1/VAR_gridPerWavelength;      % lambdaF
+    p.hx_desired = 1/VAR_gridPerWave;
+    p.hy_desired = 1/VAR_gridPerWave;
     p.hx         = p.Lx/ceil(p.Lx/p.hx_desired); % lambdaF
     p.hy         = p.Ly/ceil(p.Ly/p.hy_desired); % lambdaF
     
@@ -87,37 +101,36 @@ parfor i = 1:threadCount
       % round desired grid spacing to whole number of points per lambdaF
     
     % Time Step (for wave evolution)
-    p.dt_scale = BATCH1_dt_scale(idx1)
-    p.dt_desired = min(p.hx,p.hy)^2 / p.dt_scale; % TF
-    p.dt         = 1/ceil(1/p.dt_desired);        % TF
+    p.dt_desired = min(p.hx,p.hy)^2/10;    % TF
+    p.dt         = 1/ceil(1/p.dt_desired); % TF
     
     p.nsteps_impact = 1/p.dt; % dimensionless
     
-      % Note:
-      % currently set based on spatial resolution, could set independently
-      % does not affect drop since instantaneous impacts, only wave evolution
-      % round desired time step to have whole number of steps per TF
-      % scale with spatial res squared to keep well behaved for high res
+    % Note:
+    % currently set based on spatial resolution, could set independently
+    % does not affect drop since instantaneous impacts, only wave evolution
+    % round desired time step to have whole number of steps per TF
+    % scale with spatial res squared to keep well behaved for high res
     
     % Topography
     p.type = VAR_type; % options: 'flat', 'square_well', 'circular_well'
     
-    radius = VAR_R;
+    radius = BATCH_R(idx1);
     switch p.type
         case 'flat'
-            p.h0 = BATCH0_h0(idx0); % m (constant depth)
-            p.h1 = p.h0;
-            p.Rc = radius;  % lambdaF (droplet corral radius)
-            p.Dc = p.Rc*2; % lambdaF (droplet corral diameter)
+            p.h1 = VAR_h0_base;
+            p.h0 = VAR_h0_base; % m (constant depth)
+            p.Rc = radius;      % lambdaF (droplet corral radius)
+            p.Dc = p.Rc*2;      % lambdaF (droplet corral diameter)
         case 'square_well'
             p.h0 = 1.5*10^(-3); % m (interior depth)
             p.h1 = 1.5*10^(-4); % m (exterior depth)
             p.Lt = 4;           % lambdaF (well width)
         case 'circular_well'
-            p.h0 = BATCH0_h0(idx0); % m (interior depth)
-            p.h1 = BATCH0_h1(idx0); % m (exterior depth)
+            p.h1 = BATCH_h1(idx0);     % m (interior depth)
+            p.h0 = VAR_h0_base + p.h1; % m (exterior depth)
             p.Rc = radius;  % lambdaF (well radius)
-            p.Dc = p.Rc*2; % lambdaF (well diameter)
+            p.Dc = p.Rc*2;  % lambdaF (well diameter)
     end
     
     p = top_params(p);
@@ -127,7 +140,7 @@ parfor i = 1:threadCount
         fprintf("%s: Overriding threshold.\n", datetime);
         p.GamF = VAR_thresholdGuess;
     else
-        thresholdFile = sprintf("%s/threshold_cache/%f_%f_%f_%d.mat", BASE_DIRECTORY, p.h0, p.h1, p.Rc, p.dt_scale);
+        thresholdFile = sprintf("%s/threshold_cache/%f_%f_%f_%d.mat", BASE_DIRECTORY, p.h0, p.h1, p.Rc, 1/p.hx);
         if isfile(thresholdFile)
           fprintf("%s: Cache hit, loading threshold for %s.\n", datetime, thresholdFile);
           gamFLoad = load(thresholdFile);
@@ -151,8 +164,7 @@ parfor i = 1:threadCount
       % only the mass matters since treated as a point for impacts
     
     % Impact Phase
-    p.sin_theta = VAR_sin_theta;
-    p.theta     = pi-asin(p.sin_theta);
+    p.theta     = VAR_theta * pi;
     
       % Note:
       % effectively controls speed of drop given other parameters
@@ -196,13 +208,19 @@ parfor i = 1:threadCount
     p = simulate(p);
 
     %% Output Results
-    if ~isfolder(VAR_outputFolder)
-        mkdir(VAR_outputFolder);
+    
+    outputSubfolder = sprintf("RES_N=%d, mem=%.2f, %s R=%.2f h0=%.2f h1=%.2f, theta=%.2f", p.n_drops, p.mem * 100, p.type, p.Rc, p.h0 * 1000, p.h1 * 1000, p.theta / pi);
+    outputFolder = fullfile(VAR_outputFolder, outputSubfolder)
+    if ~isfolder(outputFolder)
+        mkdir(outputFolder);
     end
-    saveFilePath = sprintf("%s/RES_N=%d, %s R=%f h1=%f.mat", VAR_outputFolder, p.n_drops, p.type, p.Rc, p.h1);
+    outputFileName = sprintf("RES_%d.mat", IN_batchIndex);
+    saveFilePath = fullfile(outputFolder, outputFileName);
     fprintf("%s: Saving simulation results for %s.\n", datetime, saveFilePath);
     parsave(saveFilePath, p);
 end
+
+end 
 
 %% Hack to allow saving inside parfor
 function parsave(fname, p)

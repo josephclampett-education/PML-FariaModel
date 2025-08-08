@@ -2,27 +2,18 @@ function is_stable = faraday_evolve(p,Gam)
 
 % Initial Wave Conditions
 pert = 10^(-5);
-if isfield(p, "threshold_perturbation_type")
-    switch p.threshold_perturbation_type
-        case 'bessel'
-            eta  = pert.*besselj(0,2*pi.*sqrt(p.xx.^2+p.yy.^2));
-        case 'randomDelta'
-            eta = zeros(size(p.xx));
-            num_deltas = 10;
-            for i = 1:num_deltas
-                sigma = 0.1;
+eta = zeros(size(p.xx));
+num_deltas = 10;
+for i = 1:num_deltas
+    sigma = 0.1;
 
-                r = p.Rc * sqrt(rand());
-                theta = 2 * pi * rand();
-                x = r .* cos(theta);
-                y = r .* sin(theta);
+    r = p.Rc * sqrt(rand());
+    theta = 2 * pi * rand();
+    x = r .* cos(theta);
+    y = r .* sin(theta);
 
-                r = sqrt((p.xx - x).^2 + (p.yy - y).^2);
-                eta = eta + pert .* exp(-r.^2 / (2 * sigma^2));
-            end
-    end
-else
-    eta  = pert.*besselj(0,2*pi.*sqrt(p.xx.^2+p.yy.^2));
+    r = sqrt((p.xx - x).^2 + (p.yy - y).^2);
+    eta = eta + pert .* exp(-r.^2 / (2 * sigma^2));
 end
 phi  = zeros(size(p.xx));
 
