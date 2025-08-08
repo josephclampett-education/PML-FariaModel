@@ -6,7 +6,7 @@ if isfield(p, "threshold_perturbation_type")
     switch p.threshold_perturbation_type
         case 'bessel'
             eta  = pert.*besselj(0,2*pi.*sqrt(p.xx.^2+p.yy.^2));
-        case 'gaussians'
+        case 'randomDelta'
             eta = zeros(size(p.xx));
             num_deltas = 10;
             for i = 1:num_deltas
