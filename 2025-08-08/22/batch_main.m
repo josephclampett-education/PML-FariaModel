@@ -35,7 +35,7 @@ VAR_h0_base = 4.85*10^(-3); % mm
 VAR_mem = 0.99;
 
 VAR_shouldOverrideThreshold = 0;
-VAR_thresholdGuess = 6;
+VAR_thresholdGuess = 4;
 
 % DROPLETS
 VAR_r = (0.36)*10^(-3);
