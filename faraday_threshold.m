@@ -9,17 +9,23 @@ is_stable = faraday_evolve(p,Gam); % returns true if stable, false if unstable
 
 if is_stable
     Gam_lb = Gam;
-    Gam_ub = Gam;
+    Gam_ub = Gam + 0.1;
     while is_stable == true
-        Gam_ub    = Gam_ub + 0.1;
         is_stable = faraday_evolve(p,Gam_ub);
+        if is_stable
+            Gam_lb = Gam_lb + 0.1;
+            Gam_ub = Gam_ub + 0.1;
+        end
     end
 else
+    Gam_lb = Gam - 0.1;
     Gam_ub = Gam;
-    Gam_lb = Gam;
     while is_stable == false
-        Gam_lb    = Gam_lb - 0.1;
         is_stable = faraday_evolve(p,Gam_lb);
+        if ~is_stable
+            Gam_lb = Gam_lb - 0.1;
+            Gam_ub = Gam_ub - 0.1;
+        end
     end
 end
 

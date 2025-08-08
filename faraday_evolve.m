@@ -2,19 +2,22 @@ function is_stable = faraday_evolve(p,Gam)
 
 % Initial Wave Conditions
 pert = 10^(-5);
-eta = zeros(size(p.xx));
-num_deltas = 10;
-for i = 1:num_deltas
-    sigma = 0.1;
-
-    r = p.Rc * sqrt(rand());
-    theta = 2 * pi * rand();
-    x = r .* cos(theta);
-    y = r .* sin(theta);
-
-    r = sqrt((p.xx - x).^2 + (p.yy - y).^2);
-    eta = eta + pert .* exp(-r.^2 / (2 * sigma^2));
-end
+% eta = zeros(size(p.xx));
+% num_deltas = 10;
+% for i = 1:num_deltas
+%     sigma = 0.1;
+% 
+%     r = p.Rc * sqrt(rand());
+%     theta = 2 * pi * rand();
+%     x = r .* cos(theta);
+%     y = r .* sin(theta);
+% 
+%     r = sqrt((p.xx - x).^2 + (p.yy - y).^2);
+%     eta = eta + pert .* exp(-r.^2 / (2 * sigma^2));
+% end
+bessel0 = besselj(0,(2*pi)*sqrt((p.xx - 0).^2+(p.yy - 0).^2));
+bessel1 = besselj(0,(2*pi)*sqrt((p.xx - 1).^2+(p.yy - 0).^2));
+eta = pert*(bessel0 + 0.2*bessel1);
 phi  = zeros(size(p.xx));
 
 % Fourier Transform of Initial Conditions
@@ -58,11 +61,12 @@ for n = 1:p.nF
         c = polyfit(t_vec(end-29:end),log_energy(end-29:end),1);
 
         if c(1) < 0
+            fprintf("%s: log energy trend %f < 0. Concluding stable.\n", datetime, c(1));
             is_stable = 1;
         else
+            fprintf("%s: log energy trend %f > 0. Concluding unstable.\n", datetime, c(1));
             is_stable = 0;
         end
-
     end
 
 end
