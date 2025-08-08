@@ -36,11 +36,11 @@ for n = 1:p.nF
     eta_max = max(max(abs(eta)));
     
     if eta_max > 10*pert
-        fprintf("%s: eta_max %f >> perturbation for Gam %.2f at n = %d. Concluding unstable.\n", datetime, eta_max, Gam, n);
+        fprintf("%s: eta_max %f >> perturbation %f for Gam %.2f at n = %d. Concluding unstable.\n", datetime, eta_max, pert, Gam, n);
         is_stable = 0;
         break
     elseif eta_max < pert/10
-        fprintf("%s: eta_max %f << perturbation for Gam %.2f at n = %d.  Concluding stable.\n", datetime, eta_max, Gam, n);
+        fprintf("%s: eta_max %f << perturbation %f for Gam %.2f at n = %d. Concluding stable.\n", datetime, eta_max, pert, Gam, n);
         is_stable = 1;
         break
     end
