@@ -18,7 +18,7 @@ for i = 1:length(files)
     % Split the name by underscore
     parts = split(name, '_');
     
-    if length(parts) == 3
+    if length(parts) == 4
         % Convert each part to number
         h0 = str2double(parts{1});
         h1 = str2double(parts{2});
