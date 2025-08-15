@@ -26,7 +26,7 @@ BATCH_mem = [0.94 0.98 0.99 0.95];
 BATCH_theta = [1.10 1.20 1.25 1.30 1.35 1.40 1.50];
 
 % BATH
-VAR_type = 'circular_well_corral';
+VAR_type = 'flat';
 
 VAR_h0_base = 4.85*10^(-3); % mm
 VAR_h1 = 0.30*10^(-3);      % mm
