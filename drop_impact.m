@@ -10,7 +10,7 @@ for k = 1:p.n_drops
     vi(k) = -Fy*(p.G/p.cf_impact)*(1-exp(-p.cf_impact)) + exp(-p.cf_impact)*vi(k);
 
     % JX -- Adding corral using p.Dc
-    if (strcmp(p.type, 'flat'))
+    if (strcmp(p.type, 'flat') || strcmp(p.type, 'circular_well_corral'))
         xPos = xi(k);
         yPos = yi(k);
         radius = sqrt(xPos^2 + yPos^2);

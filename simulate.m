@@ -28,7 +28,7 @@ for n = 1:p.nimpacts
     eta_max = max(max(abs(eta)));
     if eta_max > 1
         fprintf("%s: eta_max %f > 1 during simulation.\n", datetime, eta_max);
-        % break
+        break
     end
 
     % Store Data
