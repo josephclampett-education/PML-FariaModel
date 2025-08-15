@@ -24,7 +24,7 @@ switch p.type
                 end
             end
         end
-    case 'circular_well'
+    case {'circular_well', 'circular_well_corral'}
         for i = 1:length(p.x)
             for j = 1:length(p.y)
                 xi = p.x(i);
