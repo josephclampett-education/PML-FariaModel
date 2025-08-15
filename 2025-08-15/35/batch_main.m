@@ -26,10 +26,10 @@ BATCH_mem = [0.94 0.98 0.99 0.95];
 BATCH_theta = [1.10 1.20 1.25 1.30 1.35 1.40 1.50];
 
 % BATH
-VAR_type = 'circular_well_corral';
+VAR_type = 'flat';
 
 VAR_h0_base = 4.85*10^(-3); % mm
-VAR_h1 = 0.30*10^(-3);    % mm
+VAR_h1 = 0.30*10^(-3);      % mm
 VAR_R  = CONST_RLIST(5);    % in xF
 
 % VAR_mem = 0.99;
@@ -113,24 +113,24 @@ parfor i = 1:threadCount
     % scale with spatial res squared to keep well behaved for high res
     
     % Topography
-    p.type = VAR_type; % options: 'flat', 'square_well', 'circular_well'
+    p.type = VAR_type; % options: 'flat', 'square_well', 'circular_well', 'circular_well_corral'
     
     radius = VAR_R;
     switch p.type
         case 'flat'
             p.h1 = VAR_h0_base;
-            p.h0 = VAR_h0_base; % m (constant depth)
-            p.Rc = radius;      % lambdaF (droplet corral radius)
-            p.Dc = p.Rc*2;      % lambdaF (droplet corral diameter)
+            p.h0 = VAR_h0_base;        % m (constant depth)
+            p.Rc = radius;             % lambdaF (droplet corral radius)
+            p.Dc = p.Rc*2;             % lambdaF (droplet corral diameter)
         case 'square_well'
-            p.h0 = 1.5*10^(-3); % m (interior depth)
-            p.h1 = 1.5*10^(-4); % m (exterior depth)
-            p.Lt = 4;           % lambdaF (well width)
+            p.h1 = VAR_h1;             % m (exterior depth)
+            p.h0 = VAR_h0_base + p.h1; % m (interior depth)
+            p.Lt = radius * 2;         % lambdaF (well width)
         case {'circular_well', 'circular_well_corral'}
-            p.h1 = VAR_h1;     % m (interior depth)
-            p.h0 = VAR_h0_base + p.h1; % m (exterior depth)
-            p.Rc = radius;  % lambdaF (well radius)
-            p.Dc = p.Rc*2;  % lambdaF (well diameter)
+            p.h1 = VAR_h1;             % m (exterior depth)
+            p.h0 = VAR_h0_base + p.h1; % m (interior depth)
+            p.Rc = radius;             % lambdaF (well radius)
+            p.Dc = p.Rc*2;             % lambdaF (well diameter)
     end
     
     p = top_params(p);
