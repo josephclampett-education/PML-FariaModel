@@ -10,7 +10,7 @@ p.y = p.hy*(0:p.Ny-1)-p.Ly/2;
 p.h_top_grid = zeros(p.Ny,p.Nx);
 
 switch p.type
-    case 'flat'
+    case {'flat', 'free'}
         p.h_top_grid = p.h0;
     case 'square_well'
         for i = 1:length(p.x)
