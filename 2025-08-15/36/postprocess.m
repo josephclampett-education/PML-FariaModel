@@ -29,6 +29,8 @@ for i = 1:threadCount
 
     x_data = [];
     y_data = [];
+    x_runs = cell(numel(files), 1);
+    y_runs = cell(numel(files), 1);
     for j = 1:numel(files)
         filePath = fullfile(files(j).folder, files(j).name);
         loadP = load(filePath);
@@ -36,6 +38,9 @@ for i = 1:threadCount
 
         x_data = [x_data; p.x_data];
         y_data = [y_data; p.y_data];
+
+        x_runs{j} = p.x_data;
+        y_runs{j} = p.y_data;
     end
 
     close all
@@ -72,6 +77,48 @@ for i = 1:threadCount
     %clim([0.1, 1.7] * 10e-5)
 
     exportgraphics(gca, pathId + "_histogram.png");
+    
+    %% VELOCITY HISTOGRAM
+    figure
+    bincount = 80;
+
+    velEdges = linspace(0, 20, bincount + 1);
+    velBins = zeros(1, bincount);
+    for j = 1:numel(x_runs)
+        xs_pl = x_runs{j};
+        ys_pl = y_runs{j};
+    
+        vx_plpf = diff(xs_pl, 1, 1);
+        vy_plpf = diff(ys_pl, 1, 1);
+    
+        vs_mmpf = sqrt(vx_plpf.^2 + vy_plpf.^2) * p.lambdaF * 1000;
+        vs_mmps = vs_mmpf * 1/p.TF;
+    
+        counts = histcounts(vs_mmps, velEdges);
+    
+        velBins = velBins + counts;
+    end
+
+    histogram(BinEdges = velEdges, BinCounts = velBins)
+    xlim([0 20])
+
+    exportgraphics(gca, pathId + "_velocity_histogram.png");
+    
+    %% VELOCITY HISTOGRAM
+    figure
+
+    xs_pl = p.x_data;
+    ys_pl = p.y_data;
+
+    vx_plpf = diff(xs_pl, 1, 1);
+    vy_plpf = diff(ys_pl, 1, 1);
+
+    vs_mmpf = sqrt(vx_plpf.^2 + vy_plpf.^2) * p.lambdaF * 1000;
+    vs_mmps = vs_mmpf * 1/p.TF;
+
+    plot(vs_mmps);
+
+    exportgraphics(gca, pathId + "_velocity_plot.png");
     
     %% RADIAL HISTOGRAM
     figure
@@ -126,12 +173,13 @@ for i = 1:threadCount
     exportgraphics(gca, pathId + "_wavefield.png");
 
     %% WAVEFIELD (VIDEO)
-    v = VideoWriter(pathId + "_wavefield.mp4", 'MPEG-4');
+    v = VideoWriter(pathId + "_wavefield.avi", 'Motion JPEG AVI');
     v.FrameRate = 1/p.TF;
+    v.Quality = 95;
     open(v);
 
-    fig5 = figure(5);
     frameCount = size(p.eta_data, 3);
+    figureHandle = figure;
     for j = 1:frameCount
         % Wavefield
         wavefield = p.eta_data(:, :, j);
@@ -153,9 +201,9 @@ for i = 1:threadCount
         axis square
         xlim(bounds)
         ylim(bounds)
-        title(sprintf("Wavefield at timestep %d / %d", j, frameCount));
+        title(sprintf("Wavefield %d / %d", j, frameCount));
 
-        frame = getframe(gcf);
+        frame = getframe(figureHandle);
         writeVideo(v, frame);
     end
 
