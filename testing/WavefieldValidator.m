@@ -2,8 +2,8 @@ BASE_DIRECTORY = "..";
 
 addpath(BASE_DIRECTORY);
 
-DATE = '2025-08-08';
-RUNINDEX = '21';
+DATE = '2025-08-11';
+RUNINDEX = '29';
 
 resFolder = fullfile(BASE_DIRECTORY, DATE, RUNINDEX, "RES");
 
