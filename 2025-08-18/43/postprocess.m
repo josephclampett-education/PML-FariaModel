@@ -171,6 +171,35 @@ parfor i = 1:threadCount
 
     exportgraphics(gca, pathId + "_wavefield.png");
 
+    %% WAVEFIELD CROSSX
+    figure
+    wavefield = p.eta_data(:, :, end);
+    droplet1_x = p.x_data(end, 1);
+    droplet1_y = p.y_data(end, 1);
+    wavefieldX = interp2(p.xx, p.yy, wavefield, p.xx(1, :), droplet1_y);
+    wavefieldDroplet = interp2(p.xx, p.yy, wavefield, droplet1_x, droplet1_y);
+
+    hold on
+    plot(p.xx(1, :), wavefieldY);
+    scatter(droplet1_y, wavefieldDroplet, 50);
+    hold off
+
+    exportgraphics(gca, pathId + "_wavefield_cross_x.png");
+
+    %% WAVEFIELD CROSSY
+    figure
+    wavefield = p.eta_data(:, :, end);
+    droplet1_x = p.x_data(end, 1);
+    droplet1_y = p.y_data(end, 1);
+    wavefieldY = interp2(p.xx, p.yy, wavefield, droplet1_x, p.yy(:, 1));
+
+    hold on
+    plot(p.yy(:, 1), wavefieldY);
+    scatter(droplet1_x, wavefieldDroplet, 50);
+    hold off
+
+    exportgraphics(gca, pathId + "_wavefield_cross_y.png");
+
     %% WAVEFIELD (VIDEO)
     v = VideoWriter(pathId + "_wavefield.avi", 'Motion JPEG AVI');
     v.FrameRate = 1/p.TF;
