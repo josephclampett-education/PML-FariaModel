@@ -26,9 +26,13 @@ BATCH_h1 = [0.2 0.3 0.4]*10^(-3);
 BATCH_R = CONST_RLIST;
 
 % BATH
-VAR_type = 'circular_well';
-VAR_corral_type = 'corral';
-VAR_damping_type = 'spring';
+VAR_topography_type = 'circular_well';
+VAR_damping_type = 'none';
+VAR_corral_type = 'spring';
+
+VAR_effective_corral_radius_scale = 0.80;
+VAR_damping_scale = 3;
+VAR_spring_force_coefficient = 0.2;
 
 VAR_h0_base = 4.85*10^(-3); % mm
 % VAR_h1 = 0.20*10^(-3);      % mm
@@ -52,8 +56,8 @@ VAR_initialSpeedScale = 0.01;
 VAR_domainWidth = 2 * 8;
 VAR_gridPerWave = 8;
 if isfile(BASE_DIRECTORY + "/ISLOCAL")
-  VAR_nimpacts = 10;
-  VAR_n_save_wave = 10;
+  VAR_nimpacts = 50;
+  VAR_n_save_wave = 50;
 else
   VAR_nimpacts = 40 * 60 * 20 / 10;
   VAR_n_save_wave = 200;
@@ -73,9 +77,7 @@ if isfile(BASE_DIRECTORY + "/ISLOCAL")
   threadCount = 1;
 end
 
-outputData = [];
-
-parfor i = 1:threadCount
+for i = 1:threadCount
     %% Unpack Dispatch Parameters
     idx0 = mod((i - 1), count0) + 1;
     idx1 = floor((i - 1) / count0) + 1;
@@ -115,7 +117,7 @@ parfor i = 1:threadCount
     % scale with spatial res squared to keep well behaved for high res
     
     % Topography
-    p.topgraphy_type = VAR_type; % options: 'flat', 'square_well', 'circular_well'
+    p.topography_type = VAR_topography_type; % options: 'flat', 'square_well', 'circular_well'
     p.damping_type = VAR_damping_type; % options: 'none', 'scaled'
     p.corral_type = VAR_corral_type; % options: 'none', 'rigid', 'spring'
     
@@ -135,6 +137,18 @@ parfor i = 1:threadCount
             p.h0 = VAR_h0_base + p.h1; % m (exterior depth)
             p.Rc = radius;  % lambdaF (well radius)
             p.Dc = p.Rc*2;  % lambdaF (well diameter)
+    end
+
+    switch p.damping_type
+        case 'scaled'
+            p.effective_corral_radius = radius * VAR_effective_corral_radius_scale;
+            p.damping_scale = VAR_damping_scale;
+    end
+
+    switch p.corral_type
+        case 'spring'
+            p.effective_corral_radius = radius * VAR_effective_corral_radius_scale;
+            p.spring_force_coefficient = VAR_spring_force_coefficient;
     end
     
     p = top_params(p);
@@ -214,7 +228,7 @@ parfor i = 1:threadCount
     %% Output Results
     
     outputSubfolder = sprintf("RES_N=%d, mem=%.2f, %s R=%.2f h0=%.2f h1=%.2f, theta=%.2f", p.n_drops, p.mem * 100, p.topography_type, p.Rc, p.h0 * 1000, p.h1 * 1000, p.theta / pi);
-    outputFolder = fullfile(VAR_outputFolder, outputSubfolder)
+    outputFolder = fullfile(VAR_outputFolder, outputSubfolder);
     if ~isfolder(outputFolder)
         mkdir(outputFolder);
     end

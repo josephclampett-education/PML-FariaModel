@@ -15,38 +15,33 @@ for k = 1:p.n_drops
 
     switch p.damping_type
         case 'scaled'
-            % TODO: define p.damping_scale
-            % TODO: define p.effective_corral_radius
             if radius > p.effective_corral_radius
-                impactScale = p.damping_scale * p.cf_impact;
+                cf_impact = p.damping_scale * p.cf_impact;
             else
-                impactScale = p.cf_impact;
+                cf_impact = p.cf_impact;
             end
         otherwise
-            impactScale = p.cf_impact;
+            cf_impact = p.cf_impact;
     end
 
     % Update Drop Speed Due to Instantaneous Impact
-    factor = (p.G/impactScale)*(1-exp(-impactScale)) + exp(-impactScale);
-    velocity_v = -gradient_v * factor * velocity_v;
+    velocity_v = (-gradient_v * (p.G/cf_impact)*(1-exp(-cf_impact))) + (exp(-cf_impact) * velocity_v);
 
     switch p.corral_type
         case 'rigid'
             if (radius > p.Rc) && (dot(radius_uv, velocity_v) > 0)
                 correctedVelocity_v = velocity_v - 2*dot(radius_uv, velocity_v) * radius_uv;
 
-                velocity_v = correctedVelocity_v(1);
-                velocity_v = correctedVelocity_v(2);
+                velocity_v = correctedVelocity_v;
             end
         case 'spring'
             % TODO: define p.effective_corral_radius
             % TODO: define p.spring_force_coefficient
             if radius > p.effective_corral_radius
                 springForce = p.spring_force_coefficient * (radius - p.effective_corral_radius); 
-                correctedVelocity_v = velocity_v + spring_force * (-radius_uv);
+                correctedVelocity_v = velocity_v + springForce * (-radius_uv);
 
-                velocity_v = correctedVelocity_v(1);
-                velocity_v = correctedVelocity_v(2);
+                velocity_v = correctedVelocity_v;
             end
     end
 
