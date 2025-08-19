@@ -16,7 +16,6 @@ threadCount = length(folders);
 
 outputData = [];
 
-threadCount = 1;
 for i = 1:threadCount
     folderPath = fullfile(folders(i).folder, folders(i).name);
 
