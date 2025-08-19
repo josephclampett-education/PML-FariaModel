@@ -27,12 +27,12 @@ BATCH_R = CONST_RLIST;
 
 % BATH
 VAR_topography_type = 'circular_well';
-VAR_damping_type = 'scaled';
-VAR_corral_type = 'none';
+VAR_damping_type = 'none';
+VAR_corral_type = 'spring';
 
 VAR_effective_corral_radius_scale = 0.80;
-VAR_damping_scale = 3;
-% VAR_spring_force_coefficient = 0.2;
+% VAR_damping_scale = 3;
+VAR_spring_force_coefficient = 0.2;
 
 VAR_h0_base = 4.85*10^(-3); % mm
 VAR_h1 = 0.30*10^(-3);      % mm
