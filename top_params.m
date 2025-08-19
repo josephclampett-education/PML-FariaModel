@@ -9,8 +9,8 @@ p.y = p.hy*(0:p.Ny-1)-p.Ly/2;
 % Define Topography
 p.h_top_grid = zeros(p.Ny,p.Nx);
 
-switch p.type
-    case {'flat', 'free'}
+switch p.topography_type
+    case 'flat'
         p.h_top_grid = p.h0;
     case 'square_well'
         for i = 1:length(p.x)
@@ -24,7 +24,7 @@ switch p.type
                 end
             end
         end
-    case {'circular_well', 'circular_well_corral'}
+    case 'circular_well'
         for i = 1:length(p.x)
             for j = 1:length(p.y)
                 xi = p.x(i);
