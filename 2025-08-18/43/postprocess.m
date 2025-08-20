@@ -82,14 +82,6 @@ parfor i = 1:threadCount
     imagesc(axisValuesX, axisValuesY, bins');
 
     viscircles([0, 0], [p.Rc], LineWidth = 0.2,  LineStyle = '-', Color = 'black');
-    switch p.damping_type
-        case 'scaled'
-            viscircles([0, 0], [p.effective_corral_radius], LineWidth = 0.1,  LineStyle = '--', Color = 'red');
-    end
-    switch p.corral_type
-        case 'spring'
-            viscircles([0, 0], [p.effective_corral_radius], LineWidth = 0.1,  LineStyle = '--', Color = 'red');
-    end
     hold off
     
     title("Histogram", 'Interpreter', 'latex')
@@ -119,14 +111,6 @@ parfor i = 1:threadCount
     hold on
     bar(radCenters, radProb, 'hist');
     plot(j0Domain, abs(J0) * max(radProb), Color="red");
-    switch p.damping_type
-        case 'scaled'
-            xline(p.effective_corral_radius, "--r", LineWidth = 1.0);
-    end
-    switch p.corral_type
-        case 'spring'
-            xline(p.effective_corral_radius, "--r", LineWidth = 1.0);
-    end
     hold off
 
     title("Radial Histogram", 'Interpreter', 'latex')
@@ -147,14 +131,6 @@ parfor i = 1:threadCount
     end
 
     viscircles([0, 0], [p.Rc], LineWidth = 0.2,  LineStyle = '-', Color = 'black');
-    switch p.damping_type
-        case 'scaled'
-            viscircles([0, 0], [p.effective_corral_radius], LineWidth = 0.1,  LineStyle = '--', Color = 'red');
-    end
-    switch p.corral_type
-        case 'spring'
-            viscircles([0, 0], [p.effective_corral_radius], LineWidth = 0.1,  LineStyle = '--', Color = 'red');
-    end
     hold off
 
     title("Trajectories", 'Interpreter', 'latex')
@@ -227,14 +203,6 @@ parfor i = 1:threadCount
     viscircles([p.x_data(end,:); p.y_data(end,:)]', p.drop_radius / p.lambdaF * ones(1, p.n_drops));
 
     viscircles([0, 0], [p.Rc], LineWidth = 0.2,  LineStyle = '-', Color = 'black');
-    switch p.damping_type
-        case 'scaled'
-            viscircles([0, 0], [p.effective_corral_radius], LineWidth = 0.1,  LineStyle = '--', Color = 'red');
-    end
-    switch p.corral_type
-        case 'spring'
-            viscircles([0, 0], [p.effective_corral_radius], LineWidth = 0.1,  LineStyle = '--', Color = 'red');
-    end
     hold off
     
     title("Wavefield", 'Interpreter', 'latex')
@@ -257,14 +225,6 @@ parfor i = 1:threadCount
     contourf(p.xx, p.yy, averageWavefield, 50, "EdgeColor", "none");
 
     viscircles([0, 0], [p.Rc], LineWidth = 0.2,  LineStyle = '-', Color = 'black');
-    switch p.damping_type
-        case 'scaled'
-            viscircles([0, 0], [p.effective_corral_radius], LineWidth = 0.1,  LineStyle = '--', Color = 'red');
-    end
-    switch p.corral_type
-        case 'spring'
-            viscircles([0, 0], [p.effective_corral_radius], LineWidth = 0.1,  LineStyle = '--', Color = 'red');
-    end
     hold off
     
     title("Average Wavefield", 'Interpreter', 'latex')
@@ -339,14 +299,6 @@ parfor i = 1:threadCount
 
         % Corral
         viscircles([0, 0], [p.Rc], LineWidth = 0.2,  LineStyle = '-', Color = 'black');
-        switch p.damping_type
-            case 'scaled'
-                viscircles([0, 0], [p.effective_corral_radius], LineWidth = 0.1,  LineStyle = '--', Color = 'red');
-        end
-        switch p.corral_type
-            case 'spring'
-                viscircles([0, 0], [p.effective_corral_radius], LineWidth = 0.1,  LineStyle = '--', Color = 'red');
-        end
         hold off
 
         title("Video", 'Interpreter', 'latex')
