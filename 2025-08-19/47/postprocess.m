@@ -7,12 +7,14 @@ addpath(BASE_DIRECTORY);
 % ================================================================
 
 HISTOGRAM_BINCOUNT = 180;
-HISTOGRAM_CLIM = [0.5 4.5] * 10^-3;
+HISTOGRAM_CLIM = [0.1 1.1] * 10^-3;
 
 RADIAL_HISTOGRAM_BINCOUNT = 80;
+RADIAL_HISTOGRAM_USEPLIM = false;
 RADIAL_HISTOGRAM_PLIM = 0.025;
 
 VELOCITY_HISTOGRAM_BINCOUNT = RADIAL_HISTOGRAM_BINCOUNT;
+VELOCITY_HISTOGRAM_MAXVEL = 40;
 
 WAVEFIELD_CLIM = [-1 +1] * 0.015;
 
@@ -131,7 +133,9 @@ parfor i = 1:threadCount
     xlabel('$r/\lambda_F$','Interpreter','latex')
     ylabel('$p$','Interpreter','latex')
     xlim([0 p.Rc]);
-    ylim([0 RADIAL_HISTOGRAM_PLIM]);
+    if (RADIAL_HISTOGRAM_USEPLIM)
+        ylim([0 RADIAL_HISTOGRAM_PLIM]);
+    end
 
     exportgraphics(gca, pathId + "_radial_histogram.png");
 
@@ -165,8 +169,8 @@ parfor i = 1:threadCount
     %% VELOCITY HISTOGRAM
     figure
 
-    velEdges = linspace(0, 20, VELOCITY_HISTOGRAM_BINCOUNT + 1);
-    velBins = zeros(1, bincount);
+    velEdges = linspace(0, VELOCITY_HISTOGRAM_MAXVEL, VELOCITY_HISTOGRAM_BINCOUNT + 1);
+    velBins = zeros(1, VELOCITY_HISTOGRAM_BINCOUNT);
     for j = 1:numel(x_runs)
         xs_pl = x_runs{j};
         ys_pl = y_runs{j};
@@ -187,7 +191,7 @@ parfor i = 1:threadCount
     title("Velocity Histogram", 'Interpreter', 'latex')
     xlabel('$v (mm/s)$','Interpreter','latex')
     ylabel('$p$','Interpreter','latex')
-    xlim([0 20])
+    xlim([0 VELOCITY_HISTOGRAM_MAXVEL])
 
     exportgraphics(gca, pathId + "_velocity_histogram.png");
     
@@ -243,6 +247,36 @@ parfor i = 1:threadCount
     clim(WAVEFIELD_CLIM)
 
     exportgraphics(gca, pathId + "_wavefield.png");
+
+    %% AVERAGE WAVEFIELD
+    figure
+    hold on
+
+    averageWavefield = mean(p.eta_data, 3);
+
+    contourf(p.xx, p.yy, averageWavefield, 50, "EdgeColor", "none");
+
+    viscircles([0, 0], [p.Rc], LineWidth = 0.2,  LineStyle = '-', Color = 'black');
+    switch p.damping_type
+        case 'scaled'
+            viscircles([0, 0], [p.effective_corral_radius], LineWidth = 0.1,  LineStyle = '--', Color = 'red');
+    end
+    switch p.corral_type
+        case 'spring'
+            viscircles([0, 0], [p.effective_corral_radius], LineWidth = 0.1,  LineStyle = '--', Color = 'red');
+    end
+    hold off
+    
+    title("Average Wavefield", 'Interpreter', 'latex')
+    xlabel('$x/\lambda_F$','Interpreter','latex')
+    ylabel('$y/\lambda_F$','Interpreter','latex')
+    axis square
+    xlim(bounds)
+    ylim(bounds)
+    colorbar
+    clim(WAVEFIELD_CLIM)
+
+    exportgraphics(gca, pathId + "_average_wavefield.png");
 
     %% WAVEFIELD CROSS X
     figure
