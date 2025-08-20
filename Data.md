@@ -18,3 +18,15 @@ Using well topography, spring corral. Sweeping N and memory. and setting N = 1.
 
 # 2025-08-20/54
 Using well topography, spring corral and setting N = 10. Sweeping phase and memory.
+
+# 2025-08-20/55
+Using well topography, no corral and setting N = 10. Sweeping phase and memory.
+
+# 2025-08-20/56
+Using well topography, no corral and setting N = 1. Sweeping phase and memory.
+
+# 2025-08-20/57
+Using well topography, no corral and setting N = 10 at r = 0.45 mm. Sweeping phase and memory.
+
+# 2025-08-20/58
+Using well topography, no corral and setting N = 1 at r = 0.45 mm. Sweeping phase and memory.
