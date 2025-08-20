@@ -33,6 +33,6 @@ codegen/
 # Cloud based storage dotfile
 .MATLABDriveTag
 
-RES_*
+**/RES/*
 ISLOCAL
 *.out
