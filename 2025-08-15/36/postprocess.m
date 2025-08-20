@@ -110,7 +110,10 @@ parfor i = 1:threadCount
     ys_pl = p.y_data;
 
     vx_plpf = diff(xs_pl, 1, 1);
+    vx_plpf = mod(vx_plpf + p.Lx/2, p.Lx) - p.Lx/2;
+
     vy_plpf = diff(ys_pl, 1, 1);
+    vy_plpf = mod(vy_plpf + p.Ly/2, p.Ly) - p.Ly/2;
 
     vs_mmpf = sqrt(vx_plpf.^2 + vy_plpf.^2) * p.lambdaF * 1000;
     vs_mmps = vs_mmpf * 1/p.TF;
@@ -170,6 +173,35 @@ parfor i = 1:threadCount
     ylim(bounds)
 
     exportgraphics(gca, pathId + "_wavefield.png");
+
+    %% WAVEFIELD CROSS X
+    figure
+    wavefield = p.eta_data(:, :, end);
+    droplet1_x = p.x_data(end, 1);
+    droplet1_y = p.y_data(end, 1);
+    wavefieldX = interp2(p.xx, p.yy, wavefield, p.xx(1, :), droplet1_y);
+    wavefieldDroplet = interp2(p.xx, p.yy, wavefield, droplet1_x, droplet1_y);
+
+    hold on
+    plot(p.xx(1, :), wavefieldX);
+    scatter(droplet1_x, wavefieldDroplet, 50);
+    hold off
+
+    exportgraphics(gca, pathId + "_wavefield_cross_x.png");
+
+    %% WAVEFIELD CROSS Y
+    figure
+    wavefield = p.eta_data(:, :, end);
+    droplet1_x = p.x_data(end, 1);
+    droplet1_y = p.y_data(end, 1);
+    wavefieldY = interp2(p.xx, p.yy, wavefield, droplet1_x, p.yy(:, 1));
+
+    hold on
+    plot(p.yy(:, 1), wavefieldY);
+    scatter(droplet1_y, wavefieldDroplet, 50);
+    hold off
+
+    exportgraphics(gca, pathId + "_wavefield_cross_y.png");
 
     %% WAVEFIELD (VIDEO)
     v = VideoWriter(pathId + "_wavefield.avi", 'Motion JPEG AVI');
