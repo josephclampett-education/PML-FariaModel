@@ -93,8 +93,8 @@ parfor i = 1:threadCount
     hold off
     
     title("Histogram", 'Interpreter', 'latex')
-    xlabel('$x/\lambda_F$','Interpreter','latex')
-    ylabel('$y/\lambda_F$','Interpreter','latex')
+    xlabel('$x/\lambda_F$', Interpreter = "latex")
+    ylabel('$y/\lambda_F$', Interpreter = "latex")
     axis square
     colorbar
     xlim(bounds)
@@ -130,8 +130,8 @@ parfor i = 1:threadCount
     hold off
 
     title("Radial Histogram", 'Interpreter', 'latex')
-    xlabel('$r/\lambda_F$','Interpreter','latex')
-    ylabel('$p$','Interpreter','latex')
+    xlabel('$r/\lambda_F$', Interpreter = "latex")
+    ylabel('$p$', Interpreter = "latex")
     xlim([0 p.Rc]);
     if (RADIAL_HISTOGRAM_USEPLIM)
         ylim([0 RADIAL_HISTOGRAM_PLIM]);
@@ -158,8 +158,8 @@ parfor i = 1:threadCount
     hold off
 
     title("Trajectories", 'Interpreter', 'latex')
-    xlabel('$x/\lambda_F$','Interpreter','latex')
-    ylabel('$y/\lambda_F$','Interpreter','latex')
+    xlabel('$x/\lambda_F$', Interpreter = "latex")
+    ylabel('$y/\lambda_F$', Interpreter = "latex")
     axis square
     xlim(bounds)
     ylim(bounds)
@@ -189,8 +189,8 @@ parfor i = 1:threadCount
     histogram(BinEdges = velEdges, BinCounts = velBins)
 
     title("Velocity Histogram", 'Interpreter', 'latex')
-    xlabel('$v (mm/s)$','Interpreter','latex')
-    ylabel('$p$','Interpreter','latex')
+    xlabel('$v$ (mm/s)', Interpreter = "latex")
+    ylabel('$p$', Interpreter = "latex")
     xlim([0 VELOCITY_HISTOGRAM_MAXVEL])
 
     exportgraphics(gca, pathId + "_velocity_histogram.png");
@@ -213,8 +213,8 @@ parfor i = 1:threadCount
     plot(vs_mmps);
 
     title("Velocity", 'Interpreter', 'latex')
-    xlabel('$t_n$','Interpreter','latex')
-    ylabel('$v (mm/s)$','Interpreter','latex')
+    xlabel('$t_n$', Interpreter = "latex")
+    ylabel('$v$ (mm/s)', Interpreter = "latex")
 
     exportgraphics(gca, pathId + "_velocity_plot.png");
 
@@ -238,8 +238,8 @@ parfor i = 1:threadCount
     hold off
     
     title("Wavefield", 'Interpreter', 'latex')
-    xlabel('$x/\lambda_F$','Interpreter','latex')
-    ylabel('$y/\lambda_F$','Interpreter','latex')
+    xlabel('$x/\lambda_F$', Interpreter = "latex")
+    ylabel('$y/\lambda_F$', Interpreter = "latex")
     axis square
     xlim(bounds)
     ylim(bounds)
@@ -268,8 +268,8 @@ parfor i = 1:threadCount
     hold off
     
     title("Average Wavefield", 'Interpreter', 'latex')
-    xlabel('$x/\lambda_F$','Interpreter','latex')
-    ylabel('$y/\lambda_F$','Interpreter','latex')
+    xlabel('$x/\lambda_F$', Interpreter = "latex")
+    ylabel('$y/\lambda_F$', Interpreter = "latex")
     axis square
     xlim(bounds)
     ylim(bounds)
@@ -292,8 +292,8 @@ parfor i = 1:threadCount
     hold off
 
     title("Wavefield (X Cross-Section)", 'Interpreter', 'latex')
-    xlabel('$x/\lambda_F$','Interpreter','latex')
-    ylabel('$\eta (m)$','Interpreter','latex')
+    xlabel('$x/\lambda_F$', Interpreter = "latex")
+    ylabel('$\eta$ (m)', Interpreter = "latex")
 
     exportgraphics(gca, pathId + "_wavefield_x_cross.png");
 
@@ -310,8 +310,8 @@ parfor i = 1:threadCount
     hold off
 
     title("Wavefield (Y Cross-Section)", 'Interpreter', 'latex')
-    xlabel('$y/\lambda_F$','Interpreter','latex')
-    ylabel('$\eta (m)$','Interpreter','latex')
+    xlabel('$y/\lambda_F$', Interpreter = "latex")
+    ylabel('$\eta$ (m)', Interpreter = "latex")
 
     exportgraphics(gca, pathId + "_wavefield_y_cross.png");
 
@@ -350,8 +350,8 @@ parfor i = 1:threadCount
         hold off
 
         title("Video", 'Interpreter', 'latex')
-        xlabel('$x/\lambda_F$','Interpreter','latex')
-        ylabel('$y/\lambda_F$','Interpreter','latex')
+        xlabel('$x/\lambda_F$', Interpreter = "latex")
+        ylabel('$y/\lambda_F$', Interpreter = "latex")
 
         axis square
         xlim(bounds)

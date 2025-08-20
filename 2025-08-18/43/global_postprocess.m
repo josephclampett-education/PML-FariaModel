@@ -84,8 +84,8 @@ hold off
 lgd = legend;
 
 title("Velocity vs. Phase", 'Interpreter', 'latex')
-xlabel('$\phi$','Interpreter','latex')
-ylabel('$v (mm/s)$','Interpreter','latex')
+xlabel('$\phi$', Interpreter = "latex")
+ylabel('$v$ (mm/s)', Interpreter = "latex")
 oldYlim = ylim;
 ylim([-1.0, oldYlim(2)])
 

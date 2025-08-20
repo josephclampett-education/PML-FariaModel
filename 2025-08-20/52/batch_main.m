@@ -77,7 +77,7 @@ if isfile(BASE_DIRECTORY + "/ISLOCAL")
   threadCount = 1;
 end
 
-for i = 1:threadCount
+parfor i = 1:threadCount
     %% Unpack Dispatch Parameters
     idx0 = mod((i - 1), count0) + 1;
     idx1 = floor((i - 1) / count0) + 1;
