@@ -45,7 +45,7 @@ VAR_thresholdGuess = 5;
 
 % DROPLETS
 VAR_r = (0.36)*10^(-3);
-% VAR_theta = 1.10;
+VAR_theta = 1.20;
 % VAR_n_drops = 1;
 
 % INITIAL CONDITIONS

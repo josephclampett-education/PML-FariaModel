@@ -175,8 +175,11 @@ parfor i = 1:threadCount
         xs_pl = x_runs{j};
         ys_pl = y_runs{j};
     
-        vx_plpf = diff(xs_pl, 1, 1);
-        vy_plpf = diff(ys_pl, 1, 1);
+    vx_plpf = diff(xs_pl, 1, 1);
+    vx_plpf = mod(vx_plpf + p.Lx/2, p.Lx) - p.Lx/2;
+
+    vy_plpf = diff(ys_pl, 1, 1);
+    vy_plpf = mod(vy_plpf + p.Ly/2, p.Ly) - p.Ly/2;
     
         vs_mmpf = sqrt(vx_plpf.^2 + vy_plpf.^2) * p.lambdaF * 1000;
         vs_mmps = vs_mmpf * 1/p.TF;
