@@ -56,7 +56,10 @@ for i = 1:threadCount
     ys_pl = p.y_data;
 
     vx_plpf = diff(xs_pl, 1, 1);
+    vx_plpf = mod(vx_plpf + p.Lx/2, p.Lx) - p.Lx/2;
+
     vy_plpf = diff(ys_pl, 1, 1);
+    vy_plpf = mod(vy_plpf + p.Ly/2, p.Ly) - p.Ly/2;
 
     vs_mmpf = sqrt(vx_plpf.^2 + vy_plpf.^2) * p.lambdaF * 1000;
     vs_mmps = vs_mmpf * 1/p.TF;
@@ -95,7 +98,7 @@ for i = 1:size(POST_memories, 2)
 end
 hold off
 
-lgd = legend;
+legend;
 
 title("Velocity vs. Phase", 'Interpreter', 'latex')
 xlabel('$\phi$', Interpreter = "latex")
