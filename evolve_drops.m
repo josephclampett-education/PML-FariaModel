@@ -5,8 +5,8 @@ ui = ui.*exp(-p.cf_air*p.impact_interval);
 vi = vi.*exp(-p.cf_air*p.impact_interval);
 
 % Evolve Drop Position During Free Flight
-xi = xi + ui./p.cf_air.*(1-exp(-p.cf_air*p.impact_interval));
-yi = yi + vi./p.cf_air.*(1-exp(-p.cf_air*p.impact_interval));
+xi = xi; %+ ui./p.cf_air.*(1-exp(-p.cf_air*p.impact_interval));
+yi = yi; %+ vi./p.cf_air.*(1-exp(-p.cf_air*p.impact_interval));
 xi = mod(xi+p.Lx/2,p.Lx)-p.Lx/2;
 yi = mod(yi+p.Ly/2,p.Ly)-p.Ly/2;
 
