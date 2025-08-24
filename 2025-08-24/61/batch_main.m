@@ -22,7 +22,7 @@ BASE_DIRECTORY = "../..";
 addpath(BASE_DIRECTORY);
 
 % BATCH
-BATCH_h1 = [0.3 0.6 0.8 1.0]*10^(-3);
+BATCH_theta = [1.0 1.1 1.2 1.3 1.35];
 BATCH_mem = [0.90 0.95 0.98 0.995];
 
 % BATH
@@ -35,7 +35,7 @@ VAR_corral_type = 'none';
 % VAR_spring_force_coefficient = 0.2;
 
 VAR_h0_base = 4.85*10^(-3); % mm
-% VAR_h1 = 0.30*10^(-3);      % mm
+VAR_h1 = 0.30*10^(-3);      % mm
 VAR_R  = 2.37633;           % in xF
 
 % VAR_mem = 0.995;
@@ -45,12 +45,12 @@ VAR_thresholdGuess = 5;
 
 % DROPLETS
 VAR_r = (0.36)*10^(-3);
-VAR_theta = 1.30;
-VAR_n_drops = 10;
+% VAR_theta = 1.20;
+VAR_n_drops = 1;
 
 % INITIAL CONDITIONS
 VAR_initialRadiusScale = 0.80;
-VAR_initialSpeedScale = 0.01;
+VAR_initialSpeedScale = 0.04;
 
 % SIMULATION
 VAR_domainWidth = 2 * 8;
@@ -59,8 +59,8 @@ if isfile(BASE_DIRECTORY + "/ISLOCAL")
   VAR_nimpacts = 50;
   VAR_n_save_wave = 50;
 else
-  VAR_nimpacts = 40 * 60 * 20 / 10;
-  VAR_n_save_wave = 100;
+  VAR_nimpacts = 200;
+  VAR_n_save_wave = 200;
 end
 
 % Saving
@@ -68,7 +68,7 @@ VAR_outputFolder = "RES";
 
 %% ================================================================
 
-count0 = length(BATCH_h1);
+count0 = length(BATCH_theta);
 count1 = length(BATCH_mem);
 threadCount = count0 * count1;
 
@@ -105,7 +105,7 @@ parfor i = 1:threadCount
       % round desired grid spacing to whole number of points per lambdaF
     
     % Time Step (for wave evolution)
-    p.dt_desired = min(p.hx,p.hy)^2/10;    % TF
+    p.dt_desired = min(p.hx,p.hy)^2/20;    % TF
     p.dt         = 1/ceil(1/p.dt_desired); % TF
     
     p.nsteps_impact = 1/p.dt; % dimensionless
@@ -133,7 +133,7 @@ parfor i = 1:threadCount
             p.h1 = 1.5*10^(-4); % m (exterior depth)
             p.Lt = 4;           % lambdaF (well width)
         case 'circular_well'
-            p.h1 = BATCH_h1(idx0);     % m (interior depth)
+            p.h1 = VAR_h1;     % m (interior depth)
             p.h0 = VAR_h0_base + p.h1; % m (exterior depth)
             p.Rc = radius;  % lambdaF (well radius)
             p.Dc = p.Rc*2;  % lambdaF (well diameter)
@@ -182,7 +182,7 @@ parfor i = 1:threadCount
       % only the mass matters since treated as a point for impacts
     
     % Impact Phase
-    p.theta     = VAR_theta * pi;
+    p.theta     = BATCH_theta(idx0) * pi;
     
       % Note:
       % effectively controls speed of drop given other parameters
@@ -199,10 +199,10 @@ parfor i = 1:threadCount
     randX = cos(randTheta);
     randY = sin(randTheta);
 
-    p.xi = randR .* randX;
-    p.yi = randR .* randY;
-    p.ui = VAR_initialSpeedScale * rand(1,p.n_drops);
-    p.vi = VAR_initialSpeedScale * rand(1,p.n_drops);
+    p.xi = 0;
+    p.yi = 0;
+    p.ui = 0;
+    p.vi = VAR_initialSpeedScale;
     
     % Set Wave Initial Conditions
     p.eta0 = zeros(size(p.xx));

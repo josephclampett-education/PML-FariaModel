@@ -30,3 +30,18 @@ Using well topography, no corral and setting N = 10 at r = 0.45 mm. Sweeping pha
 
 # 2025-08-20/58
 Using well topography, no corral and setting N = 1 at r = 0.45 mm. Sweeping phase and memory.
+
+# 2025-08-20/59
+Special branch - testing arrested bouncers to check wavefield slope
+
+# 2025-08-20/60
+Using well topography, no corral and setting N = 10 at r = 0.36 mm. Sweeping h1 and memory. We intentionally picked unusually high h1 values to see if we can convince the slow 1.3pi droplets to leave the middle.
+
+# 2025-08-24/61
+Copy of 56 - sending r = 0.36 mm droplet to top boundary and plotting video. Now trying for doubled time resolution.
+
+# 2025-08-24/62
+Copy of 58 - sending r = 0.45 mm droplet to top boundary and plotting video. Now trying for doubled time resolution.
+
+# 2025-08-24/63
+Free walking + collisions. 98% memory, fixed corral size, phase. No sweeping.
