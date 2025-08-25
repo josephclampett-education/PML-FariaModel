@@ -44,4 +44,7 @@ Copy of 56 - sending r = 0.36 mm droplet to top boundary and plotting video. Now
 Copy of 58 - sending r = 0.45 mm droplet to top boundary and plotting video. Now trying for doubled time resolution.
 
 # 2025-08-24/63
-Free walking + collisions. 98% memory, fixed corral size, phase. No sweeping.
+Free walking + collisions. r = 0.45 mm, 98% memory, fixed corral size, phase. No sweeping.
+
+# 2025-08-24/64
+Free walking + collisions. r = 0.36 mm, 98% memory, fixed corral size, phase. No sweeping.
