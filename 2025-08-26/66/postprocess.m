@@ -16,7 +16,9 @@ RADIAL_HISTOGRAM_PLIM = 0.025;
 VELOCITY_HISTOGRAM_BINCOUNT = RADIAL_HISTOGRAM_BINCOUNT;
 VELOCITY_HISTOGRAM_MAXVEL = 40;
 
-WAVEFIELD_CLIM = [-1 +1] * 0.015;
+WAVEFIELD_CLIM = [-1 +1] * 0.010;
+
+CROSS_SECTIONS_DROPLET_SIZE = 20;
 
 % Saving
 VAR_outputFolder = "RES";
@@ -26,10 +28,10 @@ VAR_outputFolder = "RES";
 folders = dir(fullfile(VAR_outputFolder, "RES_*"));
 threadCount = length(folders);
 
-% Only do one run if using on local
-if isfile(BASE_DIRECTORY + "/ISLOCAL")
-  threadCount = 1;
-end
+% % Only do one run if using on local
+% if isfile(BASE_DIRECTORY + "/ISLOCAL")
+%   threadCount = 1;
+% end
 
 parfor i = 1:threadCount
     folderPath = fullfile(folders(i).folder, folders(i).name);
@@ -67,7 +69,8 @@ parfor i = 1:threadCount
         ys = [ys; y_data(:, j)];
     end
 
-    bounds = [-(p.Rc + 1), (p.Rc + 1)];
+    BOUNDS_R_PERL = [-0.5 0.5] * p.Lx;
+    BOUNDS_R_PERL_CROPPED = [-(p.Rc + 1), (p.Rc + 1)];
     
     %% HISTOGRAM
     figure
@@ -80,8 +83,7 @@ parfor i = 1:threadCount
     axisValuesY = linspace(-p.Ly/2, p.Ly/2, HISTOGRAM_BINCOUNT);
     hold on
     imagesc(axisValuesX, axisValuesY, bins');
-
-    viscircles([0, 0], [p.Rc], LineWidth = 0.2,  LineStyle = '-', Color = 'black');
+    DrawBounds2D(p)
     hold off
     
     title("Histogram", 'Interpreter', 'latex')
@@ -89,8 +91,8 @@ parfor i = 1:threadCount
     ylabel('$y/\lambda_F$', Interpreter = "latex")
     axis square
     colorbar
-    xlim(bounds)
-    ylim(bounds)
+    xlim(BOUNDS_R_PERL_CROPPED)
+    ylim(BOUNDS_R_PERL_CROPPED)
     clim(HISTOGRAM_CLIM)
 
     exportgraphics(gca, pathId + "_histogram.png");
@@ -108,9 +110,10 @@ parfor i = 1:threadCount
     j0Domain = (0:0.02:p.Rc);
     J0 = besselj(0, (2*pi) * j0Domain);
     
-    hold on
     bar(radCenters, radProb, 'hist');
+    hold on
     plot(j0Domain, abs(J0) * max(radProb), Color="red");
+    DrawBounds1DRad(p)
     hold off
 
     title("Radial Histogram", 'Interpreter', 'latex')
@@ -129,16 +132,14 @@ parfor i = 1:threadCount
     for j = 1:size(p.x_data, 2)
         plot(x_data(:, j), y_data(:, j));
     end
-
-    viscircles([0, 0], [p.Rc], LineWidth = 0.2,  LineStyle = '-', Color = 'black');
-    hold off
+    DrawBounds2D(p)
 
     title("Trajectories", 'Interpreter', 'latex')
     xlabel('$x/\lambda_F$', Interpreter = "latex")
     ylabel('$y/\lambda_F$', Interpreter = "latex")
     axis square
-    xlim(bounds)
-    ylim(bounds)
+    xlim(BOUNDS_R_PERL_CROPPED)
+    ylim(BOUNDS_R_PERL_CROPPED)
 
     exportgraphics(gca, pathId + "_trajectory.png");
     
@@ -151,11 +152,11 @@ parfor i = 1:threadCount
         xs_pl = x_runs{j};
         ys_pl = y_runs{j};
     
-        vx_plpf = diff(xs_pl, 1, 1);
-        vx_plpf = mod(vx_plpf + p.Lx/2, p.Lx) - p.Lx/2;
+    vx_plpf = diff(xs_pl, 1, 1);
+    vx_plpf = mod(vx_plpf + p.Lx/2, p.Lx) - p.Lx/2;
 
-        vy_plpf = diff(ys_pl, 1, 1);
-        vy_plpf = mod(vy_plpf + p.Ly/2, p.Ly) - p.Ly/2;
+    vy_plpf = diff(ys_pl, 1, 1);
+    vy_plpf = mod(vy_plpf + p.Ly/2, p.Ly) - p.Ly/2;
     
         vs_mmpf = sqrt(vx_plpf.^2 + vy_plpf.^2) * p.lambdaF * 1000;
         vs_mmps = vs_mmpf * 1/p.TF;
@@ -199,21 +200,18 @@ parfor i = 1:threadCount
 
     %% WAVEFIELD
     figure
-    hold on
     wavefield = p.eta_data(:, :, end);
-    contourf(p.xx, p.yy, wavefield, 50, "EdgeColor", "none");
-    
+    DrawWavefield2D(p, wavefield);
+    hold on
     viscircles([p.x_data(end,:); p.y_data(end,:)]', p.drop_radius / p.lambdaF * ones(1, p.n_drops));
-
-    viscircles([0, 0], [p.Rc], LineWidth = 0.2,  LineStyle = '-', Color = 'black');
     hold off
     
     title("Wavefield", 'Interpreter', 'latex')
     xlabel('$x/\lambda_F$', Interpreter = "latex")
     ylabel('$y/\lambda_F$', Interpreter = "latex")
     axis square
-    xlim(bounds)
-    ylim(bounds)
+    xlim(BOUNDS_R_PERL_CROPPED)
+    ylim(BOUNDS_R_PERL_CROPPED)
     colorbar
     clim(WAVEFIELD_CLIM)
 
@@ -224,18 +222,14 @@ parfor i = 1:threadCount
     hold on
 
     averageWavefield = mean(p.eta_data, 3);
-
-    contourf(p.xx, p.yy, averageWavefield, 50, "EdgeColor", "none");
-
-    viscircles([0, 0], [p.Rc], LineWidth = 0.2,  LineStyle = '-', Color = 'black');
-    hold off
+    DrawWavefield2D(p, averageWavefield)
     
     title("Average Wavefield", 'Interpreter', 'latex')
     xlabel('$x/\lambda_F$', Interpreter = "latex")
     ylabel('$y/\lambda_F$', Interpreter = "latex")
     axis square
-    xlim(bounds)
-    ylim(bounds)
+    xlim(BOUNDS_R_PERL_CROPPED)
+    ylim(BOUNDS_R_PERL_CROPPED)
     colorbar
     clim(WAVEFIELD_CLIM)
 
@@ -249,14 +243,17 @@ parfor i = 1:threadCount
     wavefieldX = interp2(p.xx, p.yy, wavefield, p.xx(1, :), droplet1_y);
     wavefieldDroplet = interp2(p.xx, p.yy, wavefield, droplet1_x, droplet1_y);
 
-    hold on
     plot(p.xx(1, :), wavefieldX);
-    scatter(droplet1_x, wavefieldDroplet, 50);
+    hold on
+    scatter(droplet1_x, wavefieldDroplet, CROSS_SECTIONS_DROPLET_SIZE, 'filled');
+    DrawBounds1DDia(p);
     hold off
 
     title("Wavefield (X Cross-Section)", 'Interpreter', 'latex')
     xlabel('$x/\lambda_F$', Interpreter = "latex")
     ylabel('$\eta$ (m)', Interpreter = "latex")
+    xlim(BOUNDS_R_PERL)
+    ylim(WAVEFIELD_CLIM)
 
     exportgraphics(gca, pathId + "_wavefield_x_cross.png");
 
@@ -267,14 +264,17 @@ parfor i = 1:threadCount
     droplet1_y = p.y_data(end, 1);
     wavefieldY = interp2(p.xx, p.yy, wavefield, droplet1_x, p.yy(:, 1));
 
-    hold on
     plot(p.yy(:, 1), wavefieldY);
-    scatter(droplet1_y, wavefieldDroplet, 50);
+    hold on
+    scatter(droplet1_y, wavefieldDroplet, CROSS_SECTIONS_DROPLET_SIZE, 'filled');
+    DrawBounds1DDia(p);
     hold off
 
     title("Wavefield (Y Cross-Section)", 'Interpreter', 'latex')
     xlabel('$y/\lambda_F$', Interpreter = "latex")
     ylabel('$\eta$ (m)', Interpreter = "latex")
+    xlim(BOUNDS_R_PERL)
+    ylim(WAVEFIELD_CLIM)
 
     exportgraphics(gca, pathId + "_wavefield_y_cross.png");
 
@@ -284,39 +284,183 @@ parfor i = 1:threadCount
     v.Quality = 95;
     open(v);
 
-    frameCount = size(p.eta_data, 3);
     figureHandle = figure;
-    for j = 1:frameCount
-        % Wavefield
-        wavefield = p.eta_data(:, :, j);
-        contourf(p.xx, p.yy, wavefield, 50, "EdgeColor", "none");
+    tiledlayout(2, 2 , Padding = "tight", TileSpacing = "tight")
 
-        hold on
-        % Droplet positions
+    frameCount = size(p.eta_data, 3);
+    for j = 1:frameCount
+           
+        % Set up shared data
         absoluteTime = p.nimpacts - p.n_save_wave + j;
         dropletPositions = zeros(p.n_drops, 2);
         for k = 1:size(p.x_data, 2)
             dropletPositions(k, :) = [p.x_data(absoluteTime, k), p.y_data(absoluteTime, k)];
         end
-        viscircles(dropletPositions, p.drop_radius / p.lambdaF * ones(1, p.n_drops));
+        droplet1Position = dropletPositions(1, :);
+        wavefieldX = interp2(p.xx, p.yy, wavefield, p.xx(1, :), droplet1Position(2));
+        wavefieldY = interp2(p.xx, p.yy, wavefield, droplet1Position(1), p.yy(:, 1));
+        wavefieldDroplet = interp2(p.xx, p.yy, wavefield, droplet1Position(1), droplet1Position(2));
 
-        % Corral
-        viscircles([0, 0], [p.Rc], LineWidth = 0.2,  LineStyle = '-', Color = 'black');
+        % Wavefield
+        nexttile(1)
+        wavefield = p.eta_data(:, :, j);
+        DrawWavefield2D(p, wavefield)
+        hold on
+        viscircles(dropletPositions, p.drop_radius / p.lambdaF * ones(1, p.n_drops));
         hold off
 
-        title("Video", 'Interpreter', 'latex')
+        title("Wavefield", 'Interpreter', 'latex')
         xlabel('$x/\lambda_F$', Interpreter = "latex")
         ylabel('$y/\lambda_F$', Interpreter = "latex")
 
         axis square
-        xlim(bounds)
-        ylim(bounds)
+        xlim(BOUNDS_R_PERL)
+        ylim(BOUNDS_R_PERL)
         colorbar
         clim(WAVEFIELD_CLIM)
 
+        % Wavefield (Tracked)
+        nexttile(2)
+        wavefield = p.eta_data(:, :, j);
+        DrawWavefield2D(p, wavefield, droplet1Position)
+        hold on
+        viscircles(zeros(p.n_drops, 2), p.drop_radius / p.lambdaF * ones(1, p.n_drops));
+        hold off
+
+        title("Wavefield (Tracked)", 'Interpreter', 'latex')
+        xlabel('$x/\lambda_F$', Interpreter = "latex")
+        ylabel('$y/\lambda_F$', Interpreter = "latex")
+
+        axis square
+        xlim(BOUNDS_R_PERL)
+        ylim(BOUNDS_R_PERL)
+        colorbar
+        clim(WAVEFIELD_CLIM)
+
+        % Wavefield Cross X
+        nexttile(3)
+        plot(p.xx(1, :), wavefieldX);
+        hold on
+        scatter(droplet1Position(1), wavefieldDroplet, CROSS_SECTIONS_DROPLET_SIZE, 'filled');
+        DrawBounds1DDia(p);
+        hold off
+
+        title("Wavefield (X Cross-Section)", 'Interpreter', 'latex')
+        xlabel('$x/\lambda_F$', Interpreter = "latex")
+        ylabel('$\eta$ (m)', Interpreter = "latex")
+        axis square
+        xlim(BOUNDS_R_PERL)
+        ylim(WAVEFIELD_CLIM)
+
+        % Wavefield Cross Y
+        nexttile(4)
+        plot(p.yy(:, 1), wavefieldY);
+        hold on
+        scatter(droplet1Position(2), wavefieldDroplet, CROSS_SECTIONS_DROPLET_SIZE, 'filled');
+        DrawBounds1DDia(p);
+        hold off
+
+        title("Wavefield (Y Cross-Section)", 'Interpreter', 'latex')
+        xlabel('$y/\lambda_F$', Interpreter = "latex")
+        ylabel('$\eta$ (m)', Interpreter = "latex")
+        axis square
+        xlim(BOUNDS_R_PERL)
+        ylim(WAVEFIELD_CLIM)
+
+        % Write out results
         frame = getframe(figureHandle);
         writeVideo(v, frame);
     end
 
     close(v);
+end
+
+function DrawBounds1DRad(p, origin)
+    arguments
+        p
+        origin (1,1) double = 0
+    end
+
+    hold on
+
+    switch p.topography_type
+        case 'circular_well'
+            xline(p.Rc - origin, "-", LineWidth = 1.0);
+    end
+    switch p.damping_type
+        case 'scaled'
+            xline(p.effective_corral_radius - origin, "--r", LineWidth = 1.0);
+    end
+    switch p.corral_type
+        case 'spring'
+            xline(p.effective_corral_radius - origin, "--r", LineWidth = 1.0);
+        case 'rigid'
+            xline(p.Rc - origin, "-", LineWidth = 1.0);
+    end
+
+    hold off
+end
+
+function DrawBounds1DDia(p, origin)
+    arguments
+        p
+        origin (1,1) double = 0
+    end
+
+    hold on
+
+    switch p.topography_type
+        case 'circular_well'
+            xline(p.Rc - origin, "-", LineWidth = 1.0);
+            xline(-(p.Rc - origin), "-", LineWidth = 1.0);
+    end
+    switch p.damping_type
+        case 'scaled'
+            xline(p.effective_corral_radius - origin, "--r", LineWidth = 1.0);
+            xline(-(p.effective_corral_radius - origin), "--r", LineWidth = 1.0);
+    end
+    switch p.corral_type
+        case 'spring'
+            xline(p.effective_corral_radius - origin, "--r", LineWidth = 1.0);
+            xline(-(p.effective_corral_radius - origin), "--r", LineWidth = 1.0);
+        case 'rigid'
+            xline(p.Rc - origin, "-", LineWidth = 1.0);
+            xline(-(p.Rc - origin), "-", LineWidth = 1.0);
+    end
+    
+    hold off
+end
+
+function DrawWavefield2D(p, wavefield, origin)
+    arguments
+        p
+        wavefield
+        origin (1,2) double = [0 0]
+    end
+
+    contourf(p.xx  + p.Lx/p.Nx/2 - origin(1), p.yy + p.Ly/p.Ny/2 - origin(2), wavefield, 50, "EdgeColor", "none");
+    hold on
+    DrawBounds2D(p, origin)
+    hold off
+end
+
+function DrawBounds2D(p, origin)
+    arguments
+        p
+        origin (1,2) double = [0 0]
+    end
+
+    hold on
+    
+    viscircles([0 0] - origin, [p.Rc], LineWidth = 0.2,  LineStyle = '-', Color = 'black');
+    switch p.damping_type
+        case 'scaled'
+            viscircles([0 0] - origin, [p.effective_corral_radius], LineWidth = 0.1,  LineStyle = '--', Color = 'red');
+    end
+    switch p.corral_type
+        case 'spring'
+            viscircles([0 0] - origin, [p.effective_corral_radius], LineWidth = 0.1,  LineStyle = '--', Color = 'red');
+    end
+    
+    hold off
 end
