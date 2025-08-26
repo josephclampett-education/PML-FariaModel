@@ -22,11 +22,11 @@ BASE_DIRECTORY = "../..";
 addpath(BASE_DIRECTORY);
 
 % BATCH
-BATCH_mem = [0.70 0.80 0.90 0.95];
-BATCH_theta = [1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50];
+BATCH_topography_type = ["flat" "circular_well"];
+BATCH_theta = [1.10 1.20 1.30];
 
 % BATH
-VAR_topography_type = 'flat';
+% VAR_topography_type = 'flat';
 VAR_damping_type = 'none';
 VAR_corral_type = 'none';
 
@@ -35,10 +35,10 @@ VAR_corral_type = 'none';
 % VAR_spring_force_coefficient = 0.2;
 
 VAR_h0_base = 4.85*10^(-3); % mm
-VAR_h1 = 0*10^(-3);         % mm
-VAR_R  = CONST_RLIST(5);    % in xF
+VAR_h1 = 0.30*10^(-3);      % mm
+VAR_R  = CONST_RLIST(1);    % in xF
 
-% VAR_mem = 0.99;
+VAR_mem = 0.99;
 
 VAR_shouldOverrideThreshold = false;
 VAR_thresholdGuess = 5;
@@ -68,7 +68,7 @@ VAR_outputFolder = "RES";
 
 %% ================================================================
 
-count0 = length(BATCH_mem);
+count0 = length(BATCH_topography_type);
 count1 = length(BATCH_theta);
 threadCount = count0 * count1;
 
@@ -117,7 +117,7 @@ parfor i = 1:threadCount
     % scale with spatial res squared to keep well behaved for high res
     
     % Topography
-    p.topography_type = VAR_topography_type; % options: 'flat', 'square_well', 'circular_well'
+    p.topography_type = BATCH_topography_type(idx0); % options: 'flat', 'square_well', 'circular_well'
     p.damping_type = VAR_damping_type; % options: 'none', 'scaled'
     p.corral_type = VAR_corral_type; % options: 'none', 'rigid', 'spring'
     
@@ -209,7 +209,7 @@ parfor i = 1:threadCount
     p.phi0 = zeros(size(p.xx));
     
     % Set Memory
-    p.mem = BATCH_mem(idx0);
+    p.mem = VAR_mem;
     p.Gam = p.mem*p.GamF;
     
     % Set Number of Impacts (Simulation Time in TF)

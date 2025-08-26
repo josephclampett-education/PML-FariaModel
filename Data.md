@@ -48,3 +48,6 @@ Free walking + collisions. r = 0.45 mm, 98% memory, fixed corral size, phase. No
 
 # 2025-08-24/64
 Free walking + collisions. r = 0.36 mm, 98% memory, fixed corral size, phase. No sweeping.
+
+# 2025-08-26/65
+Complement to 43. Sweeping memory and phase for free walker but at r = 0.45 mm.
