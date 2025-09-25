@@ -51,3 +51,12 @@ Free walking + collisions. r = 0.36 mm, 98% memory, fixed corral size, phase. No
 
 # 2025-08-26/65
 Complement to 43. Sweeping memory and phase for free walker but at r = 0.45 mm.
+
+# 2025-08-25/73
+After a chat with another working on the code, decided to revisit the very-low-damper case and consider what happens if we accept a high Faraday threshold. Sent off a run for 0.1 mm, sweeping 90 to 99 memory and radius
+
+# 2025-08-25/74
+Same as above but tried 0.05 mm and for a larger range of memories beginning at 80%
+
+# 2025-08-25/76
+Different goal - while the above run, revisiting artificially-damped droplet motion and reran the simulations but this time shifted the effective corral size in very slightly to 98%.
