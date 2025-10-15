@@ -20,6 +20,10 @@ WAVEFIELD_CLIM = [-1 +1] * 0.010;
 
 CROSS_SECTIONS_DROPLET_SIZE = 20;
 
+SPATIALVEL_HISTOGRAM_RES_BASE = 180;
+SPATIALVEL_HISTOGRAM_BINSCALE = 1;
+SPATIALVEL_HISTOGRAM_INTERP_SCALE = 4;
+
 % Saving
 VAR_outputFolder = "RES";
 
@@ -28,10 +32,10 @@ VAR_outputFolder = "RES";
 folders = dir(fullfile(VAR_outputFolder, "RES_*"));
 threadCount = length(folders);
 
-% % Only do one run if using on local
-% if isfile(BASE_DIRECTORY + "/ISLOCAL")
-%   threadCount = 1;
-% end
+% Only do one run if using on local
+if isfile(BASE_DIRECTORY + "/ISLOCAL")
+  threadCount = 1;
+end
 
 parfor i = 1:threadCount
     folderPath = fullfile(folders(i).folder, folders(i).name);
@@ -197,6 +201,61 @@ parfor i = 1:threadCount
     ylabel('$v$ (mm/s)', Interpreter = "latex")
 
     exportgraphics(gca, pathId + "_velocity_plot.png");
+    
+    %% SPATIAL VELOCITY HISTOGRAM
+    figure
+
+    SPATIALVEL_HISTOGRAM_RES = SPATIALVEL_HISTOGRAM_RES_BASE * SPATIALVEL_HISTOGRAM_BINSCALE;
+    SPATIALVEL_HISTOGRAM_BINCOUNT = SPATIALVEL_HISTOGRAM_RES;
+
+    xEdges = linspace(-p.Lx/2, p.Lx/2, SPATIALVEL_HISTOGRAM_RES + 1);
+    yEdges = linspace(-p.Ly/2, p.Ly/2, SPATIALVEL_HISTOGRAM_RES + 1);
+    axisValuesX = linspace(-p.Lx/2, p.Lx/2, SPATIALVEL_HISTOGRAM_RES);
+    axisValuesY = linspace(-p.Ly/2, p.Ly/2, SPATIALVEL_HISTOGRAM_RES);
+
+    xs_pl = p.x_data;
+    ys_pl = p.y_data;
+
+    vx_plpf = diff(xs_pl, 1, 1);
+    vx_plpf = mod(vx_plpf + p.Lx/2, p.Lx) - p.Lx/2;
+
+    vy_plpf = diff(ys_pl, 1, 1);
+    vy_plpf = mod(vy_plpf + p.Ly/2, p.Ly) - p.Ly/2;
+
+    vs_mmpf = sqrt(vx_plpf.^2 + vy_plpf.^2) * p.lambdaF * 1000;
+    vs_mmps = vs_mmpf * 1/p.TF;
+
+    % Need to drop one so xs.Count and ys.Count match vs.Count
+    sv_xs_pl = xs_pl(2:end, :);
+    sv_ys_pl = ys_pl(2:end, :);
+    
+    % Populate bins
+    bins = nan(SPATIALVEL_HISTOGRAM_BINCOUNT, SPATIALVEL_HISTOGRAM_BINCOUNT);
+    for xIdx = 1:SPATIALVEL_HISTOGRAM_BINCOUNT
+        for yIdx = 1:SPATIALVEL_HISTOGRAM_BINCOUNT
+            in_bin = sv_xs_pl >= xEdges(xIdx) & sv_xs_pl < xEdges(xIdx+1) & ...
+                     sv_ys_pl >= yEdges(yIdx) & sv_ys_pl < yEdges(yIdx+1);
+            if any(in_bin)
+                bins(xIdx, yIdx) = mean(vs_mmps(in_bin));
+            end
+        end
+    end
+
+    hold on
+    imagesc(axisValuesX, axisValuesY, bins');
+    DrawBounds2D(p)
+    hold off
+
+    title("Spatial Velocity Histogram", 'Interpreter', 'latex')
+    xlabel('$x/\lambda_F$', Interpreter = "latex")
+    ylabel('$y/\lambda_F$', Interpreter = "latex")
+    axis square
+    colorbar
+    xlim(BOUNDS_R_PERL_CROPPED)
+    ylim(BOUNDS_R_PERL_CROPPED)
+    % clim(HISTOGRAM_CLIM)
+
+    exportgraphics(gca, pathId + "_spatial_velocity_histogram.png");
 
     %% WAVEFIELD
     figure
