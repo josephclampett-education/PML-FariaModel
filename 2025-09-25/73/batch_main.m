@@ -22,7 +22,7 @@ BASE_DIRECTORY = "../..";
 addpath(BASE_DIRECTORY);
 
 % BATCH
-BATCH_mem = [0.9 0.95 0.99];
+BATCH_mem = [0.7 0.8 0.9 0.95 0.99];
 BATCH_R = CONST_RLIST;
 
 % BATH
@@ -228,7 +228,7 @@ parfor i = 1:threadCount
 
     %% Output Results
     
-    outputSubfolder = sprintf("RES_N=%d, mem=%.2f, %s R=%.2f h0=%.2f h1=%.2f, csc=%.2f, theta=%.2f", p.n_drops, p.mem * 100, p.topography_type, p.Rc, p.h0 * 1000, p.h1 * 1000, p.damping_scale, p.theta / pi);
+    outputSubfolder = sprintf("RES_N=%d, mem=%.2f, %s R=%.2f h0=%.2f h1=%.2f, theta=%.2f", p.n_drops, p.mem * 100, p.topography_type, p.Rc, p.h0 * 1000, p.h1 * 1000, p.theta / pi);
     outputFolder = fullfile(VAR_outputFolder, outputSubfolder);
     if ~isfolder(outputFolder)
         mkdir(outputFolder);

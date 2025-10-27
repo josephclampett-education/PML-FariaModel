@@ -24,7 +24,7 @@ for n = 1:p.nimpacts
     % Wave Field at Current Time
     eta = real(ifft2(eta_hat));  
 
-    % Check to Make Sure Not Above Faraday Threshold
+    % Ensure below Faraday threshold
     eta_max = max(max(abs(eta)));
     if eta_max > 1
         fprintf("%s: eta_max %f > 1 during simulation.\n", datetime, eta_max);
