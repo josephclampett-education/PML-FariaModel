@@ -13,16 +13,16 @@ RADIAL_HISTOGRAM_BINCOUNT = 80;
 RADIAL_HISTOGRAM_USEPLIM = false;
 RADIAL_HISTOGRAM_PLIM = 0.025;
 
-VELOCITY_HISTOGRAM_BINCOUNT = RADIAL_HISTOGRAM_BINCOUNT;
-VELOCITY_HISTOGRAM_MAXVEL = 40;
+SPEED_HISTOGRAM_BINCOUNT = RADIAL_HISTOGRAM_BINCOUNT;
+SPEED_HISTOGRAM_MAXSPD = 40;
 
 WAVEFIELD_CLIM = [-1 +1] * 0.010;
 
 CROSS_SECTIONS_DROPLET_SIZE = 20;
 
-SPATIALVEL_HISTOGRAM_RES_BASE = 180;
-SPATIALVEL_HISTOGRAM_BINSCALE = 1;
-SPATIALVEL_HISTOGRAM_INTERP_SCALE = 4;
+SPATIALSPEED_RES_BASE = 180;
+SPATIALSPEED_BINSCALE = 1;
+SPATIALSPEED_INTERP_SCALE = 4;
 
 % Saving
 VAR_outputFolder = "RES";
@@ -32,12 +32,14 @@ VAR_outputFolder = "RES";
 folders = dir(fullfile(VAR_outputFolder, "RES_*"));
 threadCount = length(folders);
 
+ISLOCAL = isfile(BASE_DIRECTORY + "/ISLOCAL");
+
 % Only do one run if using on local
-if isfile(BASE_DIRECTORY + "/ISLOCAL")
+if ISLOCAL
   threadCount = 1;
 end
 
-parfor i = 1:threadCount
+for i = 1:threadCount
     folderPath = fullfile(folders(i).folder, folders(i).name);
 
     % pathId is important for saving!
@@ -132,9 +134,27 @@ parfor i = 1:threadCount
 
     %% TRAJECTORY
     figure
+    axes = gca;
     hold on
+
     for j = 1:size(p.x_data, 2)
-        plot(x_data(:, j), y_data(:, j));
+        xs_pl = p.x_data(:, j);
+        ys_pl = p.y_data(:, j);
+    
+        vx_plpf = diff(xs_pl, 1, 1);
+        vx_plpf = mod(vx_plpf + p.Lx/2, p.Lx) - p.Lx/2;
+    
+        vy_plpf = diff(ys_pl, 1, 1);
+        vy_plpf = mod(vy_plpf + p.Ly/2, p.Ly) - p.Ly/2;
+    
+        vs_mmpf = sqrt(vx_plpf.^2 + vy_plpf.^2) * p.lambdaF * 1000;
+        vs_mmps = vs_mmpf * 1/p.TF;
+
+        % Need to drop one so xs.Count and ys.Count match vs.Count
+        xs_pl = xs_pl(2:end, :);
+        ys_pl = ys_pl(2:end, :);
+
+        cline(xs_pl, ys_pl, vs_mmps);
     end
     DrawBounds2D(p)
 
@@ -145,22 +165,22 @@ parfor i = 1:threadCount
     xlim(BOUNDS_R_PERL_CROPPED)
     ylim(BOUNDS_R_PERL_CROPPED)
 
-    exportgraphics(gca, pathId + "_trajectory.png");
+    exportgraphics(axes, pathId + "_trajectory.png");
     
-    %% VELOCITY HISTOGRAM
+    %% SPEED HISTOGRAM
     figure
 
-    velEdges = linspace(0, VELOCITY_HISTOGRAM_MAXVEL, VELOCITY_HISTOGRAM_BINCOUNT + 1);
-    velBins = zeros(1, VELOCITY_HISTOGRAM_BINCOUNT);
+    velEdges = linspace(0, SPEED_HISTOGRAM_MAXSPD, SPEED_HISTOGRAM_BINCOUNT + 1);
+    velBins = zeros(1, SPEED_HISTOGRAM_BINCOUNT);
     for j = 1:numel(x_runs)
         xs_pl = x_runs{j};
         ys_pl = y_runs{j};
     
-    vx_plpf = diff(xs_pl, 1, 1);
-    vx_plpf = mod(vx_plpf + p.Lx/2, p.Lx) - p.Lx/2;
-
-    vy_plpf = diff(ys_pl, 1, 1);
-    vy_plpf = mod(vy_plpf + p.Ly/2, p.Ly) - p.Ly/2;
+        vx_plpf = diff(xs_pl, 1, 1);
+        vx_plpf = mod(vx_plpf + p.Lx/2, p.Lx) - p.Lx/2;
+    
+        vy_plpf = diff(ys_pl, 1, 1);
+        vy_plpf = mod(vy_plpf + p.Ly/2, p.Ly) - p.Ly/2;
     
         vs_mmpf = sqrt(vx_plpf.^2 + vy_plpf.^2) * p.lambdaF * 1000;
         vs_mmps = vs_mmpf * 1/p.TF;
@@ -172,14 +192,14 @@ parfor i = 1:threadCount
 
     histogram(BinEdges = velEdges, BinCounts = velBins)
 
-    title("Velocity Histogram", 'Interpreter', 'latex')
+    title("Speed Histogram", 'Interpreter', 'latex')
     xlabel('$v$ (mm/s)', Interpreter = "latex")
     ylabel('$p$', Interpreter = "latex")
-    xlim([0 VELOCITY_HISTOGRAM_MAXVEL])
+    xlim([0 SPEED_HISTOGRAM_MAXSPD])
 
-    exportgraphics(gca, pathId + "_velocity_histogram.png");
+    exportgraphics(gca, pathId + "_speed_histogram.png");
     
-    %% VELOCITY PLOT
+    %% SPEED PLOT
     figure
 
     xs_pl = p.x_data;
@@ -196,22 +216,22 @@ parfor i = 1:threadCount
 
     plot(vs_mmps);
 
-    title("Velocity", 'Interpreter', 'latex')
+    title("Speed", 'Interpreter', 'latex')
     xlabel('$t_n$', Interpreter = "latex")
     ylabel('$v$ (mm/s)', Interpreter = "latex")
 
-    exportgraphics(gca, pathId + "_velocity_plot.png");
+    exportgraphics(gca, pathId + "_speed_plot.png");
     
-    %% SPATIAL VELOCITY HISTOGRAM
+    %% SPATIALSPEED
     figure
 
-    SPATIALVEL_HISTOGRAM_RES = SPATIALVEL_HISTOGRAM_RES_BASE * SPATIALVEL_HISTOGRAM_BINSCALE;
-    SPATIALVEL_HISTOGRAM_BINCOUNT = SPATIALVEL_HISTOGRAM_RES;
+    SPATIALSPEED_RES = SPATIALSPEED_RES_BASE * SPATIALSPEED_BINSCALE;
+    SPATIALSPEED_BINCOUNT = SPATIALSPEED_RES;
 
-    xEdges = linspace(-p.Lx/2, p.Lx/2, SPATIALVEL_HISTOGRAM_RES + 1);
-    yEdges = linspace(-p.Ly/2, p.Ly/2, SPATIALVEL_HISTOGRAM_RES + 1);
-    axisValuesX = linspace(-p.Lx/2, p.Lx/2, SPATIALVEL_HISTOGRAM_RES);
-    axisValuesY = linspace(-p.Ly/2, p.Ly/2, SPATIALVEL_HISTOGRAM_RES);
+    xEdges = linspace(-p.Lx/2, p.Lx/2, SPATIALSPEED_RES + 1);
+    yEdges = linspace(-p.Ly/2, p.Ly/2, SPATIALSPEED_RES + 1);
+    axisValuesX = linspace(-p.Lx/2, p.Lx/2, SPATIALSPEED_RES);
+    axisValuesY = linspace(-p.Ly/2, p.Ly/2, SPATIALSPEED_RES);
 
     xs_pl = p.x_data;
     ys_pl = p.y_data;
@@ -226,15 +246,15 @@ parfor i = 1:threadCount
     vs_mmps = vs_mmpf * 1/p.TF;
 
     % Need to drop one so xs.Count and ys.Count match vs.Count
-    sv_xs_pl = xs_pl(2:end, :);
-    sv_ys_pl = ys_pl(2:end, :);
+    ss_xs_pl = xs_pl(2:end, :);
+    ss_ys_pl = ys_pl(2:end, :);
     
     % Populate bins
-    bins = nan(SPATIALVEL_HISTOGRAM_BINCOUNT, SPATIALVEL_HISTOGRAM_BINCOUNT);
-    for xIdx = 1:SPATIALVEL_HISTOGRAM_BINCOUNT
-        for yIdx = 1:SPATIALVEL_HISTOGRAM_BINCOUNT
-            in_bin = sv_xs_pl >= xEdges(xIdx) & sv_xs_pl < xEdges(xIdx+1) & ...
-                     sv_ys_pl >= yEdges(yIdx) & sv_ys_pl < yEdges(yIdx+1);
+    bins = nan(SPATIALSPEED_BINCOUNT, SPATIALSPEED_BINCOUNT);
+    for xIdx = 1:SPATIALSPEED_BINCOUNT
+        for yIdx = 1:SPATIALSPEED_BINCOUNT
+            in_bin = ss_xs_pl >= xEdges(xIdx) & ss_xs_pl < xEdges(xIdx+1) & ...
+                     ss_ys_pl >= yEdges(yIdx) & ss_ys_pl < yEdges(yIdx+1);
             if any(in_bin)
                 bins(xIdx, yIdx) = mean(vs_mmps(in_bin));
             end
@@ -246,7 +266,7 @@ parfor i = 1:threadCount
     DrawBounds2D(p)
     hold off
 
-    title("Spatial Velocity Histogram", 'Interpreter', 'latex')
+    title("Spatial Speed Map", 'Interpreter', 'latex')
     xlabel('$x/\lambda_F$', Interpreter = "latex")
     ylabel('$y/\lambda_F$', Interpreter = "latex")
     axis square
@@ -255,7 +275,7 @@ parfor i = 1:threadCount
     ylim(BOUNDS_R_PERL_CROPPED)
     % clim(HISTOGRAM_CLIM)
 
-    exportgraphics(gca, pathId + "_spatial_velocity_histogram.png");
+    exportgraphics(gca, pathId + "_spatialspeed.png");
 
     %% WAVEFIELD
     figure
@@ -310,7 +330,7 @@ parfor i = 1:threadCount
 
     title("Wavefield (X Cross-Section)", 'Interpreter', 'latex')
     xlabel('$x/\lambda_F$', Interpreter = "latex")
-    ylabel('$\eta$ (m)', Interpreter = "latex")
+    ylabel('$\eta$', Interpreter = "latex")
     xlim(BOUNDS_R_PERL)
     ylim(WAVEFIELD_CLIM)
 
@@ -331,20 +351,71 @@ parfor i = 1:threadCount
 
     title("Wavefield (Y Cross-Section)", 'Interpreter', 'latex')
     xlabel('$y/\lambda_F$', Interpreter = "latex")
-    ylabel('$\eta$ (m)', Interpreter = "latex")
+    ylabel('$\eta$', Interpreter = "latex")
     xlim(BOUNDS_R_PERL)
     ylim(WAVEFIELD_CLIM)
 
     exportgraphics(gca, pathId + "_wavefield_y_cross.png");
 
-    %% WAVEFIELD (VIDEO)
-    v = VideoWriter(pathId + "_wavefield.avi", 'Motion JPEG AVI');
-    v.FrameRate = 1/p.TF;
-    v.Quality = 95;
-    open(v);
+    %% TRAJECTORIES (VIDEO)
+    videoWriter = VideoWriter(pathId + "_trajectories.avi", 'Motion JPEG AVI');
+    videoWriter.FrameRate = 1/p.TF;
+    videoWriter.Quality = 95;
+    open(videoWriter);
 
-    figureHandle = figure;
-    tiledlayout(2, 2 , Padding = "tight", TileSpacing = "tight")
+    figureHandle = figure(Visible = "off");
+
+    bufferFile = tempname() + ".png";
+
+    frameCount = size(p.x_data, 1);
+    for j = 1:min(frameCount, 2 * 60 / p.TF) % 2 minutes
+           
+        % Set up shared data
+        dropletPositions = zeros(p.n_drops, 2);
+        for k = 1:size(p.x_data, 2)
+            dropletPositions(k, :) = [p.x_data(j, k), p.y_data(j, k)];
+        end
+
+        % Wavefield
+        imagesc(axisValuesX, axisValuesY, bins');
+        hold on
+        viscircles(dropletPositions, p.drop_radius / p.lambdaF * ones(1, p.n_drops));
+        DrawBounds2D(p)
+        hold off
+
+        title("Trajectories", 'Interpreter', 'latex')
+        xlabel('$x/\lambda_F$', Interpreter = "latex")
+        ylabel('$y/\lambda_F$', Interpreter = "latex")
+
+        axis square
+        xlim(BOUNDS_R_PERL_CROPPED)
+        ylim(BOUNDS_R_PERL_CROPPED)
+        colorbar
+        % clim(HISTOGRAM_CLIM)
+
+        % Write out results
+        exportgraphics(gca, bufferFile, 'Resolution', 300);
+
+        frame = imread(bufferFile);
+
+        % frame = getframe(figureHandle);
+        writeVideo(videoWriter, frame);
+    end
+
+    close(videoWriter);
+
+    %% WAVEFIELD (VIDEO)
+    videoWriter = VideoWriter(pathId + "_wavefield.avi", 'Motion JPEG AVI');
+    videoWriter.FrameRate = 1/p.TF;
+    videoWriter.Quality = 95;
+    open(videoWriter);
+
+    figureHandle = figure(Visible = "off");
+    layoutHandle = tiledlayout(2, 2 , Padding = "tight", TileSpacing = "tight");
+
+    axesTest = gca;
+
+    bufferFile = tempname() + ".png";
 
     frameCount = size(p.eta_data, 3);
     for j = 1:frameCount
@@ -406,7 +477,7 @@ parfor i = 1:threadCount
 
         title("Wavefield (X Cross-Section)", 'Interpreter', 'latex')
         xlabel('$x/\lambda_F$', Interpreter = "latex")
-        ylabel('$\eta$ (m)', Interpreter = "latex")
+        ylabel('$\eta$', Interpreter = "latex")
         axis square
         xlim(BOUNDS_R_PERL)
         ylim(WAVEFIELD_CLIM)
@@ -421,17 +492,21 @@ parfor i = 1:threadCount
 
         title("Wavefield (Y Cross-Section)", 'Interpreter', 'latex')
         xlabel('$y/\lambda_F$', Interpreter = "latex")
-        ylabel('$\eta$ (m)', Interpreter = "latex")
+        ylabel('$\eta$', Interpreter = "latex")
         axis square
         xlim(BOUNDS_R_PERL)
         ylim(WAVEFIELD_CLIM)
 
         % Write out results
-        frame = getframe(figureHandle);
-        writeVideo(v, frame);
+        exportgraphics(layoutHandle, bufferFile, 'Resolution', 300);
+
+        frame = imread(bufferFile);
+
+        % frame = getframe(figureHandle);
+        writeVideo(videoWriter, frame);
     end
 
-    close(v);
+    close(videoWriter);
 end
 
 function DrawBounds1DRad(p, origin)
