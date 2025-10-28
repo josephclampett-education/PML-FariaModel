@@ -65,7 +65,7 @@ for k = 1:p.n_drops
                 if distance < distanceThreshold && distance > 0
                     overlapDistance = distanceThreshold - distance;
     
-                    force = 0.2 * overlapDistance;
+                    force = p.droplet_collision_k * overlapDistance;
     
                     deltaVelocity_v = force * distance_uv;
     
