@@ -132,6 +132,6 @@ lgd = legend;
 
 title("Wavefield vs. Phase", Interpreter = "latex")
 xlabel('$\phi$', Interpreter = "latex")
-ylabel('$\eta$ (m)', Interpreter = "latex")
+ylabel('$\eta$', Interpreter = "latex")
 
 exportgraphics(gca, fullfile(VAR_outputFolder, pathId + "_wavefield_vs_phase.png"));

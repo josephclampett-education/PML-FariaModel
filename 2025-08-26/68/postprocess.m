@@ -7,11 +7,13 @@ addpath(BASE_DIRECTORY);
 % ================================================================
 
 HISTOGRAM_BINCOUNT = 180;
-HISTOGRAM_CLIM = [0.1 1.1] * 10^-3;
+HISTOGRAM_CLIM = [0.2 0.6] * 10^-3;
 
 RADIAL_HISTOGRAM_BINCOUNT = 80;
 RADIAL_HISTOGRAM_USEPLIM = false;
 RADIAL_HISTOGRAM_PLIM = 0.025;
+
+TRAJECTORY_CLIM = [25, 45];
 
 SPEED_HISTOGRAM_BINCOUNT = RADIAL_HISTOGRAM_BINCOUNT;
 SPEED_HISTOGRAM_MAXSPD = 40;
@@ -23,6 +25,7 @@ CROSS_SECTIONS_DROPLET_SIZE = 20;
 SPATIALSPEED_RES_BASE = 180;
 SPATIALSPEED_BINSCALE = 1;
 SPATIALSPEED_INTERP_SCALE = 4;
+SPATIALSPEED_CLIM = [14, 25];
 
 % Saving
 VAR_outputFolder = "RES";
@@ -164,8 +167,9 @@ for i = 1:threadCount
     axis square
     xlim(BOUNDS_R_PERL_CROPPED)
     ylim(BOUNDS_R_PERL_CROPPED)
+    clim(TRAJECTORY_CLIM)
 
-    exportgraphics(axes, pathId + "_trajectory.png");
+    exportgraphics(axes, pathId + "_trajectories.png");
     
     %% SPEED HISTOGRAM
     figure
@@ -266,14 +270,14 @@ for i = 1:threadCount
     DrawBounds2D(p)
     hold off
 
-    title("Spatial Speed Map", 'Interpreter', 'latex')
+    title("Spatial Speed", 'Interpreter', 'latex')
     xlabel('$x/\lambda_F$', Interpreter = "latex")
     ylabel('$y/\lambda_F$', Interpreter = "latex")
     axis square
     colorbar
     xlim(BOUNDS_R_PERL_CROPPED)
     ylim(BOUNDS_R_PERL_CROPPED)
-    % clim(HISTOGRAM_CLIM)
+    clim(SPATIALSPEED_CLIM)
 
     exportgraphics(gca, pathId + "_spatialspeed.png");
 
@@ -361,7 +365,7 @@ for i = 1:threadCount
     videoWriter = VideoWriter(pathId + "_trajectories.avi", 'Motion JPEG AVI');
     videoWriter.FrameRate = 1/p.TF;
     videoWriter.Quality = 95;
-    open(videoWriter);
+    videoWriter.open();
 
     figureHandle = figure(Visible = "off");
 
@@ -369,7 +373,7 @@ for i = 1:threadCount
 
     frameCount = size(p.x_data, 1);
     for j = 1:min(frameCount, 2 * 60 / p.TF) % 2 minutes
-           
+
         % Set up shared data
         dropletPositions = zeros(p.n_drops, 2);
         for k = 1:size(p.x_data, 2)
@@ -391,29 +395,25 @@ for i = 1:threadCount
         xlim(BOUNDS_R_PERL_CROPPED)
         ylim(BOUNDS_R_PERL_CROPPED)
         colorbar
-        % clim(HISTOGRAM_CLIM)
 
         % Write out results
         exportgraphics(gca, bufferFile, 'Resolution', 300);
 
         frame = imread(bufferFile);
 
-        % frame = getframe(figureHandle);
-        writeVideo(videoWriter, frame);
+        videoWriter.writeVideo(frame);
     end
 
-    close(videoWriter);
+    videoWriter.close();
 
     %% WAVEFIELD (VIDEO)
     videoWriter = VideoWriter(pathId + "_wavefield.avi", 'Motion JPEG AVI');
     videoWriter.FrameRate = 1/p.TF;
     videoWriter.Quality = 95;
-    open(videoWriter);
+    videoWriter.open();
 
     figureHandle = figure(Visible = "off");
     layoutHandle = tiledlayout(2, 2 , Padding = "tight", TileSpacing = "tight");
-
-    axesTest = gca;
 
     bufferFile = tempname() + ".png";
 
@@ -432,12 +432,13 @@ for i = 1:threadCount
         wavefieldDroplet = interp2(p.xx, p.yy, wavefield, droplet1Position(1), droplet1Position(2));
 
         % Wavefield
-        nexttile(1)
+        tile1Axes = nexttile(1);
+        hold(tile1Axes, 'on');
+        cla(tile1Axes);
         wavefield = p.eta_data(:, :, j);
         DrawWavefield2D(p, wavefield)
-        hold on
         viscircles(dropletPositions, p.drop_radius / p.lambdaF * ones(1, p.n_drops));
-        hold off
+        hold(tile1Axes, 'off');
 
         title("Wavefield", 'Interpreter', 'latex')
         xlabel('$x/\lambda_F$', Interpreter = "latex")
@@ -450,12 +451,13 @@ for i = 1:threadCount
         clim(WAVEFIELD_CLIM)
 
         % Wavefield (Tracked)
-        nexttile(2)
+        tile2Axes = nexttile(2);
+        hold(tile2Axes, 'on');
+        cla(tile2Axes);
         wavefield = p.eta_data(:, :, j);
         DrawWavefield2D(p, wavefield, droplet1Position)
-        hold on
         viscircles(zeros(p.n_drops, 2), p.drop_radius / p.lambdaF * ones(1, p.n_drops));
-        hold off
+        hold(tile2Axes, 'off');
 
         title("Wavefield (Tracked)", 'Interpreter', 'latex')
         xlabel('$x/\lambda_F$', Interpreter = "latex")
@@ -468,12 +470,13 @@ for i = 1:threadCount
         clim(WAVEFIELD_CLIM)
 
         % Wavefield Cross X
-        nexttile(3)
+        tile3Axes = nexttile(3);
+        hold(tile3Axes, 'on');
+        cla(tile3Axes);
         plot(p.xx(1, :), wavefieldX);
-        hold on
         scatter(droplet1Position(1), wavefieldDroplet, CROSS_SECTIONS_DROPLET_SIZE, 'filled');
         DrawBounds1DDia(p);
-        hold off
+        hold(tile3Axes, 'off');
 
         title("Wavefield (X Cross-Section)", 'Interpreter', 'latex')
         xlabel('$x/\lambda_F$', Interpreter = "latex")
@@ -483,12 +486,13 @@ for i = 1:threadCount
         ylim(WAVEFIELD_CLIM)
 
         % Wavefield Cross Y
-        nexttile(4)
+        tile4Axes = nexttile(4);
+        hold(tile4Axes, 'on');
+        cla(tile4Axes);
         plot(p.yy(:, 1), wavefieldY);
-        hold on
         scatter(droplet1Position(2), wavefieldDroplet, CROSS_SECTIONS_DROPLET_SIZE, 'filled');
         DrawBounds1DDia(p);
-        hold off
+        hold(tile4Axes, 'off');
 
         title("Wavefield (Y Cross-Section)", 'Interpreter', 'latex')
         xlabel('$y/\lambda_F$', Interpreter = "latex")
@@ -502,11 +506,10 @@ for i = 1:threadCount
 
         frame = imread(bufferFile);
 
-        % frame = getframe(figureHandle);
-        writeVideo(videoWriter, frame);
+        videoWriter.writeVideo(frame);
     end
 
-    close(videoWriter);
+    videoWriter.close();
 end
 
 function DrawBounds1DRad(p, origin)
