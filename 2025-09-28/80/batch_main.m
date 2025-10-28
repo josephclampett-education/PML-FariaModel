@@ -20,9 +20,9 @@ function batch_main(IN_batchIndex)
 	% ================================================================
 
 	% BATH
-	VAR_topography_type = ['circular_well', 'none'];
-	VAR_damping_type = 'none';
-	VAR_corral_type = 'none';
+	VAR_topography_type = ["circular_well", "flat"];
+	VAR_damping_type = "none";
+	VAR_corral_type = "none";
 
 	% VAR_effective_corral_radius_scale = 0.80;
 	% VAR_damping_scale = 3;
@@ -42,7 +42,7 @@ function batch_main(IN_batchIndex)
 	VAR_theta = 1.20;       % (implicit *π)
 	VAR_n_drops = 1;
 
-	VAR_droplet_collision_type = 'spring';
+	VAR_droplet_collision_type = "spring";
 	VAR_droplet_collision_k = 0.2;
 
 	% INITIAL CONDITIONS
@@ -124,16 +124,16 @@ function batch_main(IN_batchIndex)
 
 		radius = VAR_R;
 		switch p.topography_type
-			case 'flat'
+			case "flat"
 				p.h1 = VAR_h0_base;
 				p.h0 = VAR_h0_base; % m (constant depth)
 				p.Rc = radius;      % lambdaF (droplet corral radius)
 				p.Dc = p.Rc*2;      % lambdaF (droplet corral diameter)
-			case 'square_well'
+			case "square_well"
 				p.h0 = 1.5*10^(-3); % m (interior depth)
 				p.h1 = 1.5*10^(-4); % m (exterior depth)
 				p.Lt = 4;           % lambdaF (well width)
-			case 'circular_well'
+			case "circular_well"
 				p.h1 = BATCH1(idx1);     % m (interior depth)
 				p.h0 = VAR_h0_base + p.h1; % m (exterior depth)
 				p.Rc = radius;  % lambdaF (well radius)
@@ -141,13 +141,13 @@ function batch_main(IN_batchIndex)
 		end
 
 		switch p.damping_type
-			case 'scaled'
+			case "scaled"
 				p.effective_corral_radius = radius * VAR_effective_corral_radius_scale;
 				p.damping_scale = VAR_damping_scale;
 		end
 
 		switch p.corral_type
-			case 'spring'
+			case "spring"
 				p.effective_corral_radius = radius * VAR_effective_corral_radius_scale;
 				p.spring_force_coefficient = VAR_spring_force_coefficient;
 		end
