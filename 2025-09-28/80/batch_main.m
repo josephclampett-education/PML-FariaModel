@@ -20,7 +20,7 @@ function batch_main(IN_batchIndex)
 	% ================================================================
 
 	% BATH
-	VAR_topography_type = ["circular_well", "flat"];
+	VAR_topography_type = "circular_well";
 	VAR_damping_type = "none";
 	VAR_corral_type = "none";
 
@@ -29,7 +29,7 @@ function batch_main(IN_batchIndex)
 	% VAR_spring_force_coefficient = 0.2;
 
 	VAR_h0_base = 4.85*10^(-3); % mm
-	VAR_h1 = [0.10 0.30 0.60 4.85]*10^(-3);      % mm
+	VAR_h1 = [0.30 0.60]*10^(-3); % mm
 	VAR_R  = CONST_RLIST(1);    % in xF
 
 	VAR_mem = 0.99;
