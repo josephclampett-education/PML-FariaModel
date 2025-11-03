@@ -39,7 +39,7 @@ function batch_main(IN_batchIndex)
 
 	% DROPLETS
 	VAR_r = (0.45)*10^(-3); % m
-	VAR_theta = 1.20;       % (implicit *π)
+	VAR_theta = [1.40 1.50];       % (implicit *π)
 	VAR_n_drops = 1;
 
 	VAR_droplet_collision_type = "spring";
@@ -47,21 +47,21 @@ function batch_main(IN_batchIndex)
 
 	% INITIAL CONDITIONS
 	VAR_initialRadiusScale = 0.80;
-	VAR_initialSpeedScale = 0.01;
+	VAR_initialSpeedScale = 0.1;
 
 	% SIMULATION
 	VAR_domainWidth = 2 * 8;
 	VAR_gridPerWave = 8;
 	if isfile(BASE_DIRECTORY + "/ISLOCAL")
-		VAR_nimpacts = 50;
-		VAR_n_save_wave = 50;
+		VAR_nimpacts = 200;
+		VAR_n_save_wave = 200;
 	else
 		VAR_nimpacts = 40 * 60 * 1;
 		VAR_n_save_wave = 1000;
 	end
 
 	% BATCH
-	BATCH0 = VAR_topography_type;
+	BATCH0 = VAR_theta;
 	BATCH1 = VAR_h1;
 
 	% Saving
@@ -118,7 +118,7 @@ function batch_main(IN_batchIndex)
 		% scale with spatial res squared to keep well behaved for high res
 
 		% Topography
-		p.topography_type = BATCH0(idx0); % options: 'flat', 'square_well', 'circular_well'
+		p.topography_type = VAR_topography_type; % options: 'flat', 'square_well', 'circular_well'
 		p.damping_type = VAR_damping_type; % options: 'none', 'scaled'
 		p.corral_type = VAR_corral_type; % options: 'none', 'rigid', 'spring'
 
@@ -193,7 +193,7 @@ function batch_main(IN_batchIndex)
 		p.droplet_collision_k = VAR_droplet_collision_k;
 
 		% Impact Phase
-		p.theta     = VAR_theta * pi;
+		p.theta     = BATCH0(idx0) * pi;
 
 		% Set Drop Initial Conditions
 		randTheta = 2*pi*rand(1,p.n_drops);
@@ -203,9 +203,9 @@ function batch_main(IN_batchIndex)
 		randX = cos(randTheta);
 		randY = sin(randTheta);
 
-		p.xi = 0.1;
+		p.xi = -(VAR_initialRadiusScale * p.Rc);
 		p.yi = 0;
-		p.ui = VAR_initialSpeedScale * rand(1,p.n_drops);
+		p.ui = VAR_initialSpeedScale;
 		p.vi = 0;
 
 		% Set Wave Initial Conditions
