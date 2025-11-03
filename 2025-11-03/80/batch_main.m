@@ -24,10 +24,6 @@ function batch_main(IN_batchIndex)
 	VAR_damping_type = "none";
 	VAR_corral_type = "none";
 
-	% VAR_effective_corral_radius_scale = 0.80;
-	% VAR_damping_scale = 3;
-	% VAR_spring_force_coefficient = 0.2;
-
 	VAR_h0_base = 4.85*10^(-3); % mm
 	VAR_h1 = [0.30 0.60]*10^(-3); % mm
 	VAR_R  = CONST_RLIST(1);    % in xF
@@ -39,11 +35,10 @@ function batch_main(IN_batchIndex)
 
 	% DROPLETS
 	VAR_r = (0.45)*10^(-3); % m
-	VAR_theta = [1.40 1.50];       % (implicit *π)
+	VAR_theta = [1.20 1.30 1.35 1.40 1.50];       % (implicit *π)
 	VAR_n_drops = 1;
 
-	VAR_droplet_collision_type = "spring";
-	VAR_droplet_collision_k = 0.2;
+	VAR_droplet_collision_type = "none";
 
 	% INITIAL CONDITIONS
 	VAR_initialRadiusScale = 0.80;
@@ -61,16 +56,16 @@ function batch_main(IN_batchIndex)
 	end
 
 	% BATCH
-	BATCH0 = VAR_theta;
-	BATCH1 = VAR_h1;
+	BATCH0_theta = VAR_theta;
+	BATCH1_h1 = VAR_h1;
 
 	% Saving
 	VAR_outputFolder = "RES";
 
 	%% ================================================================
 
-	count0 = length(BATCH0);
-	count1 = length(BATCH1);
+	count0 = length(BATCH0_theta);
+	count1 = length(BATCH1_h1);
 	threadCount = count0 * count1;
 
 	% Only do one run if using on local
@@ -134,7 +129,7 @@ function batch_main(IN_batchIndex)
 				p.h1 = 1.5*10^(-4); % m (exterior depth)
 				p.Lt = 4;           % lambdaF (well width)
 			case "circular_well"
-				p.h1 = BATCH1(idx1);     % m (interior depth)
+				p.h1 = BATCH1_h1(idx1);     % m (interior depth)
 				p.h0 = VAR_h0_base + p.h1; % m (exterior depth)
 				p.Rc = radius;  % lambdaF (well radius)
 				p.Dc = p.Rc*2;  % lambdaF (well diameter)
@@ -193,7 +188,7 @@ function batch_main(IN_batchIndex)
 		p.droplet_collision_k = VAR_droplet_collision_k;
 
 		% Impact Phase
-		p.theta     = BATCH0(idx0) * pi;
+		p.theta     = BATCH0_theta(idx0) * pi;
 
 		% Set Drop Initial Conditions
 		randTheta = 2*pi*rand(1,p.n_drops);
