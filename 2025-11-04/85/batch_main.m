@@ -46,7 +46,8 @@ function batch_main(IN_batchIndex)
 
 	% SIMULATION
 	VAR_domainWidth = 2 * 8;
-	VAR_gridPerWave = 8;
+	VAR_gridPerWave = 12;
+	VAR_timeStepDivisor = 10;
 	if isfile(BASE_DIRECTORY + "/ISLOCAL")
 		VAR_nimpacts = 200;
 		VAR_n_save_wave = 200;
@@ -85,12 +86,14 @@ function batch_main(IN_batchIndex)
 		%% Set Topography Parameters
 
 		% Domain Size
-		p.Lx = VAR_domainWidth; % lambdaF
-		p.Ly = VAR_domainWidth; % lambdaF
+		domainWidth = VAR_domainWidth;
+		p.Lx = domainWidth; % lambdaF
+		p.Ly = domainWidth; % lambdaF
 
 		% Grid Spacing
-		p.hx_desired = 1/VAR_gridPerWave;
-		p.hy_desired = 1/VAR_gridPerWave;
+		gridPerWave = VAR_gridPerWave;
+		p.hx_desired = 1/gridPerWave;
+		p.hy_desired = 1/gridPerWave;
 		p.hx         = p.Lx/ceil(p.Lx/p.hx_desired); % lambdaF
 		p.hy         = p.Ly/ceil(p.Ly/p.hy_desired); % lambdaF
 
@@ -101,7 +104,8 @@ function batch_main(IN_batchIndex)
 		% round desired grid spacing to whole number of points per lambdaF
 
 		% Time Step (for wave evolution)
-		p.dt_desired = min(p.hx,p.hy)^2/10;    % TF
+		timeStepDivisor = VAR_timeStepDivisor;
+		p.dt_desired = min(p.hx,p.hy)^2/timeStepDivisor;    % TF
 		p.dt         = 1/ceil(1/p.dt_desired); % TF
 
 		p.nsteps_impact = 1/p.dt; % dimensionless
@@ -154,7 +158,7 @@ function batch_main(IN_batchIndex)
 			fprintf("%s: Overriding threshold.\n", datetime);
 			p.GamF = VAR_thresholdGuess;
 		else
-			thresholdFile = sprintf("%s/threshold_cache/%f_%f_%f_%d.mat", BASE_DIRECTORY, p.h0, p.h1, p.Rc, 1/p.hx);
+			thresholdFile = sprintf("%s/threshold_cache/%f_%f_%f_%d_%d_%d.mat", BASE_DIRECTORY, p.h0, p.h1, p.Rc, timeStepDivisor, gridPerWave, domainWidth);
 			if isfile(thresholdFile)
 				fprintf("%s: Cache hit, loading threshold for %s.\n", datetime, thresholdFile);
 				gamFLoad = load(thresholdFile);
@@ -224,7 +228,7 @@ function batch_main(IN_batchIndex)
 
 		%% Run Simulation
 
-		fprintf("%s: Beginning simulation.\n", datetime);
+		fprintf("%s: Beginning simulation with time step divisor %d.\n", datetime, timeStepDivisor);
 		p = simulate(p);
 
 		%% Output Results

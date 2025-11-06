@@ -185,7 +185,10 @@ function batch_main(IN_batchIndex)
 		% optional: can choose a phase to match speed shown in experiments
 
 		p.droplet_collision_type = VAR_droplet_collision_type;
-		p.droplet_collision_k = VAR_droplet_collision_k;
+		switch (p.droplet_collision_type)
+			case "spring"
+				p.droplet_collision_k = VAR_droplet_collision_k;
+		end
 
 		% Impact Phase
 		p.theta     = BATCH0_theta(idx0) * pi;
