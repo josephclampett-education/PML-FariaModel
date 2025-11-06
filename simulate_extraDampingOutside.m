@@ -28,7 +28,8 @@ for n = 1:p.nimpacts
     % Adding Extra Damping Outside Rc with 1 Damping Wavelength
     r = sqrt(p.xx.^2 + p.yy.^2);
     eta(r > p.Rc) = eta(r > p.Rc) .* exp(-((r(r > p.Rc) - p.Rc)).^2);
-    
+    phi(r > p.Rc) = phi(r > p.Rc) .* exp(-((r(r > p.Rc) - p.Rc)).^2);
+
     phi_hat = fft2(phi);               
     eta_hat = fft2(eta);
 
