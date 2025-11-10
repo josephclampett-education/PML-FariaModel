@@ -21,14 +21,14 @@ function batch_main(IN_batchIndex)
 
 	% BATH
 	VAR_topography_type = "circular_well";
-	VAR_damping_type = "scaled";
-	VAR_damping_scale = 0.01:0.05:0.31;
-	VAR_effective_corral_radius_scale = 0;
+	VAR_damping_type = "none";
 	VAR_corral_type = "none";
 
 	VAR_h0_base = 4.85*10^(-3); % mm
 	VAR_h1 = 0.30*10^(-3);      % mm
 	VAR_R  = CONST_RLIST(1);    % in xF
+
+	VAR_c4 = 0.01:0.05:0.31;
 
 	VAR_mem = 0.99;
 
@@ -60,7 +60,7 @@ function batch_main(IN_batchIndex)
 
 	% BATCH
 	BATCH0_theta = VAR_theta;
-	BATCH1_damping_scale = VAR_damping_scale; % coefficient of restitution
+	BATCH1_c4 = VAR_c4; % coefficient of restitution
 
 	% Saving
 	VAR_outputFolder = "RES";
@@ -68,7 +68,7 @@ function batch_main(IN_batchIndex)
 	%% ================================================================
 
 	count0 = length(BATCH0_theta);
-	count1 = length(BATCH1_damping_scale);
+	count1 = length(BATCH1_c4);
 	threadCount = count0 * count1;
 
 	% Only do one run if using on local
@@ -144,7 +144,7 @@ function batch_main(IN_batchIndex)
 		switch p.damping_type
 			case "scaled"
 				p.effective_corral_radius = radius * VAR_effective_corral_radius_scale;
-				p.damping_scale = BATCH1_damping_scale(idx1);
+				p.damping_scale = VAR_damping_scale;
 		end
 
 		switch p.corral_type
@@ -212,6 +212,8 @@ function batch_main(IN_batchIndex)
 		p.ui = 0; %* rand(1,p.n_drops);
 		p.vi = VAR_initialSpeedScale; %* rand(1,p.n_drops);
 
+		p.c4 = BATCH1_c4(idx1);
+
 		% Set Wave Initial Conditions
 		p.eta0 = zeros(size(p.xx));
 		p.phi0 = zeros(size(p.xx));
@@ -235,7 +237,7 @@ function batch_main(IN_batchIndex)
 
 		%% Output Results
 
-		outputSubfolder = sprintf("RES_N=%d, mem=%.2f, %s R=%.2f h0=%.2f h1=%.2f, theta=%.2f, ds=%.2f", p.n_drops, p.mem * 100, p.topography_type, p.Rc, p.h0 * 1000, p.h1 * 1000, p.theta / pi, p.damping_scale);
+		outputSubfolder = sprintf("RES_N=%d, mem=%.2f, %s R=%.2f h0=%.2f h1=%.2f, theta=%.2f, c4=%.2f", p.n_drops, p.mem * 100, p.topography_type, p.Rc, p.h0 * 1000, p.h1 * 1000, p.theta / pi, p.c4);
 		outputFolder = fullfile(VAR_outputFolder, outputSubfolder);
 		if ~isfolder(outputFolder)
 			mkdir(outputFolder);
