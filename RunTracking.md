@@ -50,8 +50,17 @@ Due to the large break between now and the previous simulations, in addition to 
 
 
 2025-11-08	
+Goal: Add extra spatial damping outside the corral before every impact to prevent escape, by simulated_extraDaampingOutside.m file 
 RUN 86
-	Goal: add extra damping out side the corral to prevent escape, with simulated_extraDaampingOutside.m file is the following way: before every impact, damping the wave outside manually by a Guassian function.
+	Damping by a Guassian function with damping wavelength = 1.
 
 RUN 87
 	Change the Gaussian to Exponentially Decaying type.
+
+RUN 88
+	Change the dampling wavelength to 0.2
+
+2025-11-09
+Goal: Single Droplet Minimize the outreaching distance by changing parameters 
+RUN 89
+	
