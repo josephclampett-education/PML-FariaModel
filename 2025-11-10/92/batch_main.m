@@ -36,9 +36,7 @@ function batch_main(IN_batchIndex)
 	% DROPLETS
 	VAR_r = (0.45)*10^(-3); % m
 	VAR_theta = 1.20;       % (implicit *π)
-	VAR_n_drops = 1;
-
-	VAR_c4 = 0.01:0.05:0.31;
+	VAR_n_drops = 10;
 
 	VAR_droplet_collision_type = "none";
 
@@ -54,13 +52,13 @@ function batch_main(IN_batchIndex)
 		VAR_nimpacts = 200;
 		VAR_n_save_wave = 200;
 	else
-		VAR_nimpacts = 400;
-		VAR_n_save_wave = 400;
+		VAR_nimpacts = 40 * 60 * 20;
+		VAR_n_save_wave = 1000;
 	end
 
 	% BATCH
 	BATCH0_theta = VAR_theta;
-	BATCH1_c4 = VAR_c4; % coefficient of restitution
+	BATCH1_h1 = VAR_h1;
 
 	% Saving
 	VAR_outputFolder = "RES";
@@ -68,7 +66,7 @@ function batch_main(IN_batchIndex)
 	%% ================================================================
 
 	count0 = length(BATCH0_theta);
-	count1 = length(BATCH1_c4);
+	count1 = length(BATCH1_h1);
 	threadCount = count0 * count1;
 
 	% Only do one run if using on local
@@ -135,7 +133,7 @@ function batch_main(IN_batchIndex)
 				p.h1 = 1.5*10^(-4); % m (exterior depth)
 				p.Lt = 4;           % lambdaF (well width)
 			case "circular_well"
-				p.h1 = VAR_h1;      % m (interior depth)
+				p.h1 = BATCH1_h1(idx1);     % m (interior depth)
 				p.h0 = VAR_h0_base + p.h1; % m (exterior depth)
 				p.Rc = radius;  % lambdaF (well radius)
 				p.Dc = p.Rc*2;  % lambdaF (well diameter)
@@ -207,12 +205,10 @@ function batch_main(IN_batchIndex)
 		randX = cos(randTheta);
 		randY = sin(randTheta);
 
-		p.xi = 0; %randR .* randX;
-		p.yi = 0; %randR .* randY;
-		p.ui = 0; %* rand(1,p.n_drops);
-		p.vi = VAR_initialSpeedScale; %* rand(1,p.n_drops);
-
-		p.c4 = BATCH1_c4(idx1);
+		p.xi = randR .* randX;
+		p.yi = randR .* randY;
+		p.ui = VAR_initialSpeedScale * rand(1,p.n_drops);
+		p.vi = VAR_initialSpeedScale * rand(1,p.n_drops);
 
 		% Set Wave Initial Conditions
 		p.eta0 = zeros(size(p.xx));
@@ -225,6 +221,7 @@ function batch_main(IN_batchIndex)
 		% Set Number of Impacts (Simulation Time in TF)
 		p.nimpacts = VAR_nimpacts;
 
+		p.c4 = 0.62;
 		p = drop_params(p);
 
 		% Save Parameters

@@ -63,4 +63,5 @@ RUN 88
 2025-11-09
 Goal: Single Droplet Minimize the outreaching distance by changing parameters 
 RUN 89
+	Sweep c4 = 0.01:0.05:0.31
 	

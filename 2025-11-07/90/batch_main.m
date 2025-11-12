@@ -38,7 +38,7 @@ function batch_main(IN_batchIndex)
 	VAR_theta = 1.20;       % (implicit *π)
 	VAR_n_drops = 1;
 
-	VAR_c4 = 0.01:0.05:0.31;
+	VAR_c4 = 0.36:0.05:1.01; 
 
 	VAR_droplet_collision_type = "none";
 
