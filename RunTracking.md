@@ -49,6 +49,12 @@ Due to the large break between now and the previous simulations, in addition to 
 
 
 
+
+RUN 69: c4 transition, effective size = 0.8
+
+
+
+
 2025-11-08	
 Goal: Add extra spatial damping outside the corral before every impact to prevent escape, by simulated_extraDaampingOutside.m file 
 RUN 86
@@ -64,4 +70,14 @@ RUN 88
 Goal: Single Droplet Minimize the outreaching distance by changing parameters 
 RUN 89
 	Sweep c4 = 0.01:0.05:0.31
-	
+RUN 90
+	Sweep c4 = 0.36:0.05:1.01
+
+2025-11-10
+Goal: 10 Droplet simulation with different c4 value
+RUN 91
+	c4 = 0.31
+RUN 92
+	c4 = 0.62
+RUN 93
+	c4 = 0.41 

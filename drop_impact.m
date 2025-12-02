@@ -77,6 +77,34 @@ for k = 1:p.n_drops
                     ui(j) = velocity_j_v(1); vi(j) = velocity_j_v(2);
                 end
             end
+            
+        case 'exp'
+            distanceThreshold = 2 * p.drop_radius / p.lambdaF;
+
+            for i = 1:p.n_drops-1
+                for j = i+1:p.n_drops
+                    position_i_v = [xi(i), yi(i)];
+                    velocity_i_v = [ui(i), vi(i)];
+                    position_j_v = [xi(j), yi(j)];
+                    velocity_j_v = [ui(j), vi(j)];
+
+                    distance_v = position_j_v - position_i_v;
+                    distance = norm(distance_v);
+                    distance_uv = distance_v / distance;
+        
+                    if distance < distanceThreshold && distance > 0
+                        force = p.droplet_collision_k / (distance ^ p.droplet_collision_n);
+        
+                        deltaVelocity_v = force * distance_uv;
+        
+                        velocity_i_v = velocity_i_v - deltaVelocity_v;
+                        velocity_j_v = velocity_j_v + deltaVelocity_v;
+                    end
+
+                    ui(i) = velocity_i_v(1); vi(i) = velocity_i_v(2);
+                    ui(j) = velocity_j_v(1); vi(j) = velocity_j_v(2);
+                end
+            end
     end
     
     % Update Velocity Potential Due to Instantaneous Impact
