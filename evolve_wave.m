@@ -6,23 +6,22 @@ for n=1:p.nsteps_impact
     
     % stage 1
     [rhs1_1, rhs2_1] = compute_rhs_full_IF(phi_hat, eta_hat, t, Gam, p);
-    rhs1_1 = p.D .* rhs1_1; rhs2_1 = p.D .* rhs2_1;
     
     % stage 2
-    [rhs1_2, rhs2_2] = compute_rhs_full_IF(p.D.*phi_hat + p.dt/2.*rhs1_1, ...
-        p.D.*eta_hat + p.dt/2.*rhs2_1, t+p.dt/2, Gam, p); 
+    [rhs1_2, rhs2_2] = compute_rhs_full_IF(phi_hat + p.dt/2.*rhs1_1, ...
+        eta_hat + p.dt/2.*rhs2_1, t+p.dt/2, Gam, p); 
     
     % stage 3
-    [rhs1_3, rhs2_3] = compute_rhs_full_IF(p.D.*phi_hat + p.dt/2.*rhs1_2, ...
-        p.D.*eta_hat + p.dt/2.*rhs2_2, t+p.dt/2, Gam, p); 
+    [rhs1_3, rhs2_3] = compute_rhs_full_IF(phi_hat + p.dt/2.*rhs1_2, ...
+        eta_hat + p.dt/2.*rhs2_2, t+p.dt/2, Gam, p); 
     
     % stage 4
-    [rhs1_4, rhs2_4] = compute_rhs_full_IF(p.D .* (p.D .* phi_hat + p.dt.*rhs1_3), ...
-        p.D .* (p.D .* eta_hat + p.dt.*rhs2_3), t+p.dt, Gam, p);
+    [rhs1_4, rhs2_4] = compute_rhs_full_IF(phi_hat + p.dt.*rhs1_3, ...
+        eta_hat + p.dt.*rhs2_3, t+p.dt, Gam, p);
 
     % RK step
-    phi_hat = p.D.^2 .* phi_hat + p.dt/6 * (p.D.*rhs1_1 + 2*p.D.*rhs1_2 + 2*p.D.*rhs1_3 + rhs1_4);
-    eta_hat = p.D.^2 .* eta_hat + p.dt/6 * (p.D.*rhs2_1 + 2*p.D.*rhs2_2 + 2*p.D.*rhs2_3 + rhs2_4);
+    phi_hat = phi_hat + p.dt/6 * (rhs1_1 + 2*rhs1_2 + 2*rhs1_3 + rhs1_4);
+    eta_hat = eta_hat + p.dt/6 * (rhs2_1 + 2*rhs2_2 + 2*rhs2_3 + rhs2_4);
 
     t = t+p.dt;
 
@@ -32,8 +31,13 @@ end
 
 function [rhs1, rhs2] = compute_rhs_full_IF(phi_hat,eta_hat,t,Gam,p)
 
-    rhs1 = -p.g(t,Gam).*eta_hat + p.Bo*p.K2_deriv.*eta_hat;
-    rhs2 = DtN(phi_hat,p);   
+    SPATIALFACTOR = 1 + 19*(tanh(sqrt(p.xx.^2 + p.yy.^2) - p.rc) + 1)/2; 
+
+    dissip1_hat = fft2(2/p.Reynolds*SPATIALFACTOR*ifft2(p.K2_deriv.*phi_hat));
+    dissip2_hat = fft2(2/p.Reynolds*SPATIALFACTOR*ifft2(p.K2_deriv.*eta_hat));
+
+    rhs1 = -p.g(t,Gam).*eta_hat + p.Bo*p.K2_deriv.*eta_hat + dissip1_hat;
+    rhs2 = DtN(phi_hat,p) + dissip2_hat;   
 
 end
 
