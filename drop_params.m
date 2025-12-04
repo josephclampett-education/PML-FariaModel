@@ -17,9 +17,3 @@ p.impact_interval = 1;
 
   % Note:
   % once per Faraday period, change if not (2,1) mode
-
-%%% Strobe Model Parameters %%%
-
-% Drag Coefficient
-p.strobe.D = p.cf_air + p.cf_impact;
-

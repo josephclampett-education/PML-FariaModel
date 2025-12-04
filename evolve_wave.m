@@ -31,7 +31,11 @@ end
 
 function [rhs1, rhs2] = compute_rhs_full_IF(phi_hat,eta_hat,t,Gam,p)
 
-    SPATIALFACTOR = 1 + 19*(tanh(sqrt(p.xx.^2 + p.yy.^2) - p.rc) + 1)/2; 
+    blendRate = 0.1;
+    scale = 20;
+
+
+    SPATIALFACTOR = 1 + (scale - 1)*(tanh((sqrt(p.xx.^2 + p.yy.^2) - p.Rc) / blendRate) + 1)/2; 
 
     dissip1_hat = fft2(2/p.Reynolds*SPATIALFACTOR*ifft2(p.K2_deriv.*phi_hat));
     dissip2_hat = fft2(2/p.Reynolds*SPATIALFACTOR*ifft2(p.K2_deriv.*eta_hat));
@@ -43,7 +47,7 @@ end
 
 function [rhs2] =  DtN(phi_hat,p)
 
-% Approximation to \phi_z (i.e. Dirichelt-to-Neumann operator)
+% Approximation to \phi_z (i.e. Dirichlet-to-Neumann operator)
 
 w    = p.d.*ifft2(p.KxiKy.*phi_hat);
 A    = fft2(w); 

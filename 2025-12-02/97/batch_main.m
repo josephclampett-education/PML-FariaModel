@@ -35,10 +35,12 @@ function batch_main(IN_batchIndex)
 
 	% DROPLETS
 	VAR_r = (0.45)*10^(-3); % m
-	VAR_theta = 1.20;       % (implicit *π)
+	VAR_theta = 1.20;       % / π
 	VAR_n_drops = 10;
 
 	VAR_droplet_collision_type = "none";
+
+	VAR_c4 = 0.17;
 
 	% INITIAL CONDITIONS
 	VAR_initialRadiusScale = 0.80;
@@ -158,7 +160,7 @@ function batch_main(IN_batchIndex)
 			fprintf("%s: Overriding threshold.\n", datetime);
 			p.GamF = VAR_thresholdGuess;
 		else
-			thresholdFile = sprintf("%s/threshold_cache/%f_%f_%f_%d_%d_%d.mat", BASE_DIRECTORY, p.h0, p.h1, p.Rc, timeStepDivisor, gridPerWave, domainWidth);
+			thresholdFile = sprintf("%s/threshold_cache/%f_%f_%f_%d_%d_%d_NEW.mat", BASE_DIRECTORY, p.h0, p.h1, p.Rc, timeStepDivisor, gridPerWave, domainWidth);
 			if isfile(thresholdFile)
 				fprintf("%s: Cache hit, loading threshold for %s.\n", datetime, thresholdFile);
 				gamFLoad = load(thresholdFile);
@@ -192,6 +194,9 @@ function batch_main(IN_batchIndex)
 		switch (p.droplet_collision_type)
 			case "spring"
 				p.droplet_collision_k = VAR_droplet_collision_k;
+			case "exp"
+				p.droplet_collision_k = VAR_droplet_collision_k;
+				p.droplet_collision_n = VAR_droplet_collision_n;
 		end
 
 		% Impact Phase
@@ -221,6 +226,7 @@ function batch_main(IN_batchIndex)
 		% Set Number of Impacts (Simulation Time in TF)
 		p.nimpacts = VAR_nimpacts;
 
+		p.c4 = VAR_c4;
 		p = drop_params(p);
 
 		% Save Parameters
