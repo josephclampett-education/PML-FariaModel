@@ -31,14 +31,10 @@ end
 
 function [rhs1, rhs2] = compute_rhs_full_IF(phi_hat,eta_hat,t,Gam,p)
 
-    blendRate = 0.1;
-    scale = 20;
+    spatialScale = 1 + (p.wave_damping_scale - 1)*(tanh((sqrt(p.xx.^2 + p.yy.^2) - p.Rc) / p.wave_damping_blend_rate) + 1) / 2; 
 
-
-    SPATIALFACTOR = 1 + (scale - 1)*(tanh((sqrt(p.xx.^2 + p.yy.^2) - p.Rc) / blendRate) + 1) / 2; 
-
-    dissip1_hat = fft2(2 / p.Reynolds * SPATIALFACTOR .* ifft2(p.K2_deriv .* phi_hat));
-    dissip2_hat = fft2(2 / p.Reynolds * SPATIALFACTOR .* ifft2(p.K2_deriv .* eta_hat));
+    dissip1_hat = fft2(2 / p.Reynolds * spatialScale .* ifft2(p.K2_deriv .* phi_hat));
+    dissip2_hat = fft2(2 / p.Reynolds * spatialScale .* ifft2(p.K2_deriv .* eta_hat));
 
     rhs1 = -p.g(t,Gam) .* eta_hat + p.Bo * p.K2_deriv .* eta_hat + dissip1_hat;
     rhs2 = DtN(phi_hat,p) + dissip2_hat;
