@@ -30,8 +30,8 @@ function batch_main(IN_batchIndex)
 
 	VAR_mem = 0.99;
 
-    VAR_wave_damping_scale = [1, 5, 20];
-    VAR_wave_damping_blend_rate = 0.2;
+	VAR_wave_damping_scale = [1, 5, 20];
+	VAR_wave_damping_blend_rate = 0.2;
 
 	VAR_shouldOverrideThreshold = false;
 	VAR_thresholdGuess = 5;
@@ -76,6 +76,10 @@ function batch_main(IN_batchIndex)
 
 	% Only do one run if using on local
 	if isfile(BASE_DIRECTORY + "/ISLOCAL")
+		if nargin < 1
+			IN_batchIndex = 1;
+		end
+
 		threadCount = 1;
 	end
 
