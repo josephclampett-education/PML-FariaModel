@@ -30,7 +30,7 @@ function batch_main(IN_batchIndex)
 
 	VAR_mem = 0.99;
 
-    VAR_wave_damping_scale = 20;
+    VAR_wave_damping_scale = [1, 5, 20];
     VAR_wave_damping_blend_rate = 0.2;
 
 	VAR_shouldOverrideThreshold = false;
@@ -166,7 +166,7 @@ function batch_main(IN_batchIndex)
 			fprintf("%s: Overriding threshold.\n", datetime);
 			p.GamF = VAR_thresholdGuess;
 		else
-			thresholdFile = sprintf("%s/threshold_cache/%f_%f_%f_%d_%d_%d_NEW.mat", BASE_DIRECTORY, p.h0, p.h1, p.Rc, timeStepDivisor, gridPerWave, domainWidth);
+			thresholdFile = sprintf("%s/threshold_cache/%f_%f_%f_%d_%d_%d_%d_%f.mat", BASE_DIRECTORY, p.h0, p.h1, p.Rc, timeStepDivisor, gridPerWave, domainWidth, p.wave_damping_scale, p.wave_damping_blend_rate);
 			if isfile(thresholdFile)
 				fprintf("%s: Cache hit, loading threshold for %s.\n", datetime, thresholdFile);
 				gamFLoad = load(thresholdFile);
@@ -245,7 +245,7 @@ function batch_main(IN_batchIndex)
 
 		%% Output Results
 
-		outputSubfolder = sprintf("RES_N=%d, mem=%.2f, %s R=%.2f h0=%.2f h1=%.2f, theta=%.2f", p.n_drops, p.mem * 100, p.topography_type, p.Rc, p.h0 * 1000, p.h1 * 1000, p.theta / pi);
+		outputSubfolder = sprintf("RES_N=%d, mem=%.2f, %s R=%.2f h0=%.2f h1=%.2f, theta=%.2f, wds=%d, wdbr=%.2f", p.n_drops, p.mem * 100, p.topography_type, p.Rc, p.h0 * 1000, p.h1 * 1000, p.theta / pi, p.wave_damping_scale, p.wave_damping_blend_rate);
 		outputFolder = fullfile(VAR_outputFolder, outputSubfolder);
 		if ~isfolder(outputFolder)
 			mkdir(outputFolder);
