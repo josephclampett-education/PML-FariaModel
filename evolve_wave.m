@@ -31,13 +31,8 @@ end
 
 function [rhs1, rhs2] = compute_rhs_full_IF(phi_hat,eta_hat,t,Gam,p)
 
-    spatialScale = 1 + (p.wave_damping_scale - 1)*(tanh((sqrt(p.xx.^2 + p.yy.^2) - p.Rc) / p.wave_damping_blend_rate) + 1) / 2; 
-
-    dissip1_hat = fft2(2 / p.Reynolds * spatialScale .* ifft2(p.K2_deriv .* phi_hat));
-    dissip2_hat = fft2(2 / p.Reynolds * spatialScale .* ifft2(p.K2_deriv .* eta_hat));
-
-    rhs1 = -p.g(t,Gam) .* eta_hat + p.Bo * p.K2_deriv .* eta_hat + dissip1_hat;
-    rhs2 = DtN(phi_hat,p) + dissip2_hat;
+    rhs1 = -p.g(t,Gam) .* eta_hat + p.Bo * p.K2_deriv .* eta_hat + dissipation(phi_hat, p);
+    rhs2 = DtN(phi_hat,p) +  dissipation(eta_hat, p);
 
 end
 
@@ -49,5 +44,17 @@ w    = p.d.*ifft2(p.KxiKy.*phi_hat);
 A    = fft2(w); 
 As   = conj(A(p.shift1,p.shift2));
 rhs2 = -(p.KxmiKy.*A/2 + p.KxiKy.*As/2);
+
+end
+
+function [dissip] = dissipation(var_hat, p)
+
+p.damping = 2*p.nu0*ones(size(p.xx));
+p.damping(sqrt(p.xx.^2 + p.yy.^2) > p.Rc) = p.wave_damping_scale*p.damping(sqrt(p.xx.^2 + p.yy.^2) > p.Rc);
+
+w    = p.damping.*ifft2(p.KxiKy.*var_hat);
+A    = fft2(w); 
+As   = conj(A(p.shift1,p.shift2));
+dissip = (p.KxmiKy.*A/2 + p.KxiKy.*As/2);
 
 end
