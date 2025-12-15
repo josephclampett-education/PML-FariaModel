@@ -28,9 +28,9 @@ function batch_main(IN_batchIndex)
 	VAR_h1 = 0.30*10^(-3);      % mm
 	VAR_R  = CONST_RLIST(1);    % in xF
 
-	VAR_mem = 0.8;
+	VAR_mem = 0.9;
 
-	VAR_wave_damping_scale = [1 5 10 20];
+	VAR_wave_damping_scale = [1 5 20];
 	VAR_wave_damping_blend_rate = 0.2;
 
 	VAR_shouldOverrideThreshold = false;
@@ -83,7 +83,7 @@ function batch_main(IN_batchIndex)
 		threadCount = 1;
 	end
 
-	for i = 1:threadCount
+	parfor i = 1:threadCount
 		%% Unpack Dispatch Parameters
 		idx0 = mod((i - 1), count0) + 1;
 		idx1 = floor((i - 1) / count0) + 1;
