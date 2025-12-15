@@ -1,4 +1,4 @@
-function [phi_hat, eta_hat] = evolve_wave(phi_hat, eta_hat, t_in, Gam, p)
+ function [phi_hat, eta_hat] = evolve_wave(phi_hat, eta_hat, t_in, Gam, p)
 
 t = t_in;
 
