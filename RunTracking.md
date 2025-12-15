@@ -75,7 +75,7 @@ RUN 90
 
 2025-11-10
 Goal: 10 Droplet simulation with different c4 value
-RUN 92
+RUN 93
 	c4 = 0.31
 RUN 92
 	c4 = 0.62
