@@ -28,7 +28,7 @@ function batch_main(IN_batchIndex)
 	VAR_h1 = 0.30*10^(-3);      % mm
 	VAR_R  = CONST_RLIST(1);    % in xF
 
-	VAR_mem = 0.9;
+	VAR_mem = 0.5;
 
 	VAR_wave_damping_scale = [1 5 20];
 	VAR_wave_damping_blend_rate = 0.2;
@@ -57,7 +57,7 @@ function batch_main(IN_batchIndex)
 		VAR_nimpacts = 100;
 		VAR_n_save_wave = 100;
 	else
-		VAR_nimpacts = 40 * 60 * 20;
+		VAR_nimpacts = 40 * 60 * 5;
 		VAR_n_save_wave = 1000;
 	end
 
