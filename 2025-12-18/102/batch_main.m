@@ -28,10 +28,9 @@ function batch_main(IN_batchIndex)
 	VAR_h1 = 0.30*10^(-3);      % mm
 	VAR_R  = CONST_RLIST(1);    % in xF
 
-	VAR_mem = [0.90 0.95 0.99];
+	VAR_mem = [0.85 0.86 0.87 0.88 0.89 0.90 0.91 0.92 0.93 0.94];
 
-	VAR_wave_damping_scale = [1 5 20 100];
-	VAR_wave_damping_blend_rate = 0.2;
+	VAR_wave_damping_scale = [20];
 
 	VAR_shouldOverrideThreshold = false;
 	VAR_thresholdGuess = 4.9;
@@ -57,8 +56,8 @@ function batch_main(IN_batchIndex)
 		VAR_nimpacts = 200;
 		VAR_n_save_wave = 200;
 	else
-		VAR_nimpacts = 40 * 60 * 5;
-		VAR_n_save_wave = 1000;
+		VAR_nimpacts = 4000;
+		VAR_n_save_wave = 200;
 	end
 
 	% BATCH
@@ -155,7 +154,6 @@ function batch_main(IN_batchIndex)
 		end
 
 		p.wave_damping_scale = BATCH0_wave_damping_scale(idx0);
-		p.wave_damping_blend_rate = VAR_wave_damping_blend_rate;
 
 		switch p.corral_type
 			case "spring"
