@@ -28,9 +28,9 @@ function batch_main(IN_batchIndex)
 	VAR_h1 = 0.30*10^(-3);      % mm
 	VAR_R  = CONST_RLIST(1);    % in xF
 
-	VAR_mem = [0.85 0.86 0.87 0.88 0.89 0.90 0.91 0.92 0.93 0.94];
+	VAR_mem = [0.85:0.02:0.99];
 
-	VAR_wave_damping_scale = [20];
+	VAR_damping_scale = [1 2 4 8 10 12 16 20];
 
 	VAR_shouldOverrideThreshold = false;
 	VAR_thresholdGuess = 4.9;
@@ -57,11 +57,11 @@ function batch_main(IN_batchIndex)
 		VAR_n_save_wave = 200;
 	else
 		VAR_nimpacts = 4000;
-		VAR_n_save_wave = 200;
+		VAR_n_save_wave = 4000;
 	end
 
 	% BATCH
-	BATCH0_wave_damping_scale = VAR_wave_damping_scale;
+	BATCH0_damping_scale = VAR_damping_scale;
 	BATCH1_mem = VAR_mem;
 
 	% Saving
@@ -69,7 +69,7 @@ function batch_main(IN_batchIndex)
 
 	%% ================================================================
 
-	count0 = length(BATCH0_wave_damping_scale);
+	count0 = length(BATCH0_damping_scale);
 	count1 = length(BATCH1_mem);
 	threadCount = count0 * count1;
 
@@ -153,7 +153,7 @@ function batch_main(IN_batchIndex)
 				p.damping_scale = VAR_damping_scale;
 		end
 
-		p.wave_damping_scale = BATCH0_wave_damping_scale(idx0);
+		p.damping_scale = BATCH0_damping_scale(idx0);
 
 		switch p.corral_type
 			case "spring"
@@ -168,7 +168,7 @@ function batch_main(IN_batchIndex)
 			fprintf("%s: Overriding threshold.\n", datetime);
 			p.GamF = VAR_thresholdGuess;
 		else
-			thresholdFile = sprintf("%s/threshold_cache/%f_%f_%f_%d_%d_%d_%d.mat", BASE_DIRECTORY, p.h0, p.h1, p.Rc, timeStepDivisor, gridPerWave, domainWidth, p.wave_damping_scale);
+			thresholdFile = sprintf("%s/threshold_cache/%f_%f_%f_%d_%d_%d_%d.mat", BASE_DIRECTORY, p.h0, p.h1, p.Rc, timeStepDivisor, gridPerWave, domainWidth, p.damping_scale);
 			if isfile(thresholdFile)
 				fprintf("%s: Cache hit, loading threshold for %s.\n", datetime, thresholdFile);
 				gamFLoad = load(thresholdFile);
@@ -247,7 +247,7 @@ function batch_main(IN_batchIndex)
 
 		%% Output Results
 
-		outputSubfolder = sprintf("RES_N=%d, mem=%.2f, %s R=%.2f h0=%.2f h1=%.2f, theta=%.2f, wds=%d", p.n_drops, p.mem * 100, p.topography_type, p.Rc, p.h0 * 1000, p.h1 * 1000, p.theta / pi, p.wave_damping_scale);
+		outputSubfolder = sprintf("RES_N=%d, mem=%.2f, %s R=%.2f h0=%.2f h1=%.2f, theta=%.2f, wds=%d", p.n_drops, p.mem * 100, p.topography_type, p.Rc, p.h0 * 1000, p.h1 * 1000, p.theta / pi, p.damping_scale);
 		outputFolder = fullfile(VAR_outputFolder, outputSubfolder);
 		if ~isfolder(outputFolder)
 			mkdir(outputFolder);

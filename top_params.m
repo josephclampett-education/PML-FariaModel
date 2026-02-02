@@ -17,7 +17,7 @@ switch p.topography_type
             for j = 1:length(p.y)
                 xi = p.x(i);
                 yj = p.y(j);
-                if (abs(xi) <= p.Lt/2) && (abs(yj) <= p.Lt/2)
+                if (abs(xi) <= p.Rc) && (abs(yj) <= p.Rc)
                     p.h_top_grid(j,i) = p.h0;
                 else
                     p.h_top_grid(j,i) = p.h1;

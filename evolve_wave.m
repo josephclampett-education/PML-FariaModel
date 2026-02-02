@@ -38,23 +38,29 @@ end
 
 function [rhs2] =  DtN(phi_hat,p)
 
-% Approximation to \phi_z (i.e. Dirichlet-to-Neumann operator)
+    % Approximation to \phi_z (i.e. Dirichlet-to-Neumann operator)
 
-w    = p.d.*ifft2(p.KxiKy.*phi_hat);
-A    = fft2(w); 
-As   = conj(A(p.shift1,p.shift2));
-rhs2 = -(p.KxmiKy.*A/2 + p.KxiKy.*As/2);
+    w    = p.d.*ifft2(p.KxiKy.*phi_hat);
+    A    = fft2(w); 
+    As   = conj(A(p.shift1,p.shift2));
+    rhs2 = -(p.KxmiKy.*A/2 + p.KxiKy.*As/2);
 
 end
 
 function [dissip] = dissipation(var_hat, p)
 
-p.damping = 2*p.nu0*ones(size(p.xx));
-p.damping(sqrt(p.xx.^2 + p.yy.^2) > p.Rc) = p.wave_damping_scale*p.damping(sqrt(p.xx.^2 + p.yy.^2) > p.Rc);
+    p.damping = 2*p.nu0*ones(size(p.xx));
 
-w    = p.damping.*ifft2(p.KxiKy.*var_hat);
-A    = fft2(w); 
-As   = conj(A(p.shift1,p.shift2));
-dissip = (p.KxmiKy.*A/2 + p.KxiKy.*As/2);
+    switch p.corral_type
+        case "damped"
+            p.damping(sqrt(p.xx.^2 + p.yy.^2) > p.effective_corral_radius*p.Rc) = p.damping_scale*p.damping(sqrt(p.xx.^2 + p.yy.^2) > p.effective_corral_radius*p.Rc); 
+        otherwise
+            p.damping(sqrt(p.xx.^2 + p.yy.^2) > p.Rc) = p.damping_scale*p.damping(sqrt(p.xx.^2 + p.yy.^2) > p.Rc);
+    end
+
+    w    = p.damping.*ifft2(p.KxiKy.*var_hat);
+    A    = fft2(w); 
+    As   = conj(A(p.shift1,p.shift2));
+    dissip = (p.KxmiKy.*A/2 + p.KxiKy.*As/2);
 
 end

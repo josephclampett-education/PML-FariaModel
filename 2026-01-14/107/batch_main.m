@@ -28,13 +28,13 @@ function batch_main(IN_batchIndex)
 	VAR_h1 = 0.30*10^(-3);      % mm
 	VAR_R  = CONST_RLIST(1);    % in xF
 
-	VAR_mem = 0.5;
+	VAR_mem = 90;
 
-	VAR_damping_scale = [1 5 20];
-	VAR_wave_damping_blend_rate = 0.2;
+	VAR_damping_scale = [100];
+	
 
 	VAR_shouldOverrideThreshold = false;
-	VAR_thresholdGuess = 5;
+	VAR_thresholdGuess = 4.9;
 
 	% DROPLETS
 	VAR_r = (0.45)*10^(-3); % m
@@ -54,16 +54,16 @@ function batch_main(IN_batchIndex)
 	VAR_gridPerWave = 8;
 	VAR_timeStepDivisor = 10;
 	if isfile(BASE_DIRECTORY + "/ISLOCAL")
-		VAR_nimpacts = 100;
-		VAR_n_save_wave = 100;
+		VAR_nimpacts = 200;
+		VAR_n_save_wave = 200;
 	else
-		VAR_nimpacts = 40 * 60 * 5;
-		VAR_n_save_wave = 1000;
+		VAR_nimpacts = 4000;
+		VAR_n_save_wave = 4000;
 	end
 
 	% BATCH
 	BATCH0_damping_scale = VAR_damping_scale;
-	BATCH1_h1 = VAR_h1;
+	BATCH1_mem = VAR_mem;
 
 	% Saving
 	VAR_outputFolder = "RES";
@@ -71,7 +71,7 @@ function batch_main(IN_batchIndex)
 	%% ================================================================
 
 	count0 = length(BATCH0_damping_scale);
-	count1 = length(BATCH1_h1);
+	count1 = length(BATCH1_mem);
 	threadCount = count0 * count1;
 
 	% Only do one run if using on local
@@ -142,7 +142,7 @@ function batch_main(IN_batchIndex)
 				p.h1 = 1.5*10^(-4); % m (exterior depth)
 				p.Lt = 4;           % lambdaF (well width)
 			case "circular_well"
-				p.h1 = BATCH1_h1(idx1);     % m (interior depth)
+				p.h1 = VAR_h1;     % m (interior depth)
 				p.h0 = VAR_h0_base + p.h1; % m (exterior depth)
 				p.Rc = radius;  % lambdaF (well radius)
 				p.Dc = p.Rc*2;  % lambdaF (well diameter)
@@ -155,7 +155,6 @@ function batch_main(IN_batchIndex)
 		end
 
 		p.damping_scale = BATCH0_damping_scale(idx0);
-		p.wave_damping_blend_rate = VAR_wave_damping_blend_rate;
 
 		switch p.corral_type
 			case "spring"
@@ -163,14 +162,17 @@ function batch_main(IN_batchIndex)
 				p.spring_force_coefficient = VAR_spring_force_coefficient;
 		end
 
+		
 		p = top_params(p);
+
+		p.effective_corral_radius = 0.1;
 
 		%% Calculate Faraday Threshold
 		if VAR_shouldOverrideThreshold
 			fprintf("%s: Overriding threshold.\n", datetime);
 			p.GamF = VAR_thresholdGuess;
 		else
-			thresholdFile = sprintf("%s/threshold_cache/%f_%f_%f_%d_%d_%d_%d_%f.mat", BASE_DIRECTORY, p.h0, p.h1, p.Rc, timeStepDivisor, gridPerWave, domainWidth, p.damping_scale, p.wave_damping_blend_rate);
+			thresholdFile = sprintf("%s/threshold_cache/%f_%f_%f_%d_%d_%d_%d.mat", BASE_DIRECTORY, p.h0, p.h1, p.Rc, timeStepDivisor, gridPerWave, domainWidth, p.damping_scale);
 			if isfile(thresholdFile)
 				fprintf("%s: Cache hit, loading threshold for %s.\n", datetime, thresholdFile);
 				gamFLoad = load(thresholdFile);
@@ -230,7 +232,7 @@ function batch_main(IN_batchIndex)
 		p.phi0 = zeros(size(p.xx));
 
 		% Set Memory
-		p.mem = VAR_mem;
+		p.mem = BATCH1_mem(idx1);
 		p.Gam = p.mem*p.GamF;
 
 		% Set Number of Impacts (Simulation Time in TF)
@@ -249,7 +251,7 @@ function batch_main(IN_batchIndex)
 
 		%% Output Results
 
-		outputSubfolder = sprintf("RES_N=%d, mem=%.2f, %s R=%.2f h0=%.2f h1=%.2f, theta=%.2f, wds=%d, wdbr=%.2f", p.n_drops, p.mem * 100, p.topography_type, p.Rc, p.h0 * 1000, p.h1 * 1000, p.theta / pi, p.damping_scale, p.wave_damping_blend_rate);
+		outputSubfolder = sprintf("RES_N=%d, mem=%.2f, %s R=%.2f h0=%.2f h1=%.2f, theta=%.2f, wds=%.2f", p.n_drops, p.mem * 100, p.topography_type, p.Rc, p.h0 * 1000, p.h1 * 1000, p.theta / pi, p.damping_scale);
 		outputFolder = fullfile(VAR_outputFolder, outputSubfolder);
 		if ~isfolder(outputFolder)
 			mkdir(outputFolder);

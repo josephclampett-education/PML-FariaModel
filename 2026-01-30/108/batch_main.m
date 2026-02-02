@@ -13,28 +13,27 @@ function batch_main(IN_batchIndex)
 	% CONSTS
 	% ================================================================
 
-	CONST_RLIST = [2.37633, (2.37633 + 2.62138) / 2, 2.62138, (2.62138 + 2.87610) / 2, 2.87610];
+	CONST_RLIST = [1.87668, 2.12053, 2.37633, 2.62138, 2.87610, 3.12196, 3.37594, 3.62238, 3.87582];
 
 	% ================================================================
 	% PARAMS
 	% ================================================================
 
 	% BATH
-	VAR_topography_type = "circular_well";
-	VAR_damping_type = "none";
-	VAR_corral_type = "none";
+	VAR_topography_type = "flat"; % options: "flat", "square_well", "circular_well"
+	VAR_corral_type = "rigid"; % options: "none", "rigid", "spring", "damped"
 
-	VAR_h0_base = 4.85*10^(-3); % mm
-	VAR_h1 = 0.30*10^(-3);      % mm
-	VAR_R  = CONST_RLIST(1);    % in xF
+	VAR_h0_base = 2*10^(-3); % mm
+	VAR_h1 = 0.30*10^(-3);   % mm
+	VAR_R  = CONST_RLIST; % in xF
 
-	VAR_mem = 0.5;
+	VAR_mem = 98;
 
-	VAR_damping_scale = [1 5 20];
-	VAR_wave_damping_blend_rate = 0.2;
+	VAR_effective_corral_radius_scale = VAR_R;
+	VAR_damping_scale = 1;
 
 	VAR_shouldOverrideThreshold = false;
-	VAR_thresholdGuess = 5;
+	VAR_thresholdGuess = 4.9;
 
 	% DROPLETS
 	VAR_r = (0.45)*10^(-3); % m
@@ -54,24 +53,24 @@ function batch_main(IN_batchIndex)
 	VAR_gridPerWave = 8;
 	VAR_timeStepDivisor = 10;
 	if isfile(BASE_DIRECTORY + "/ISLOCAL")
-		VAR_nimpacts = 100;
-		VAR_n_save_wave = 100;
+		VAR_nimpacts = 200;
+		VAR_n_save_wave = 200;
 	else
-		VAR_nimpacts = 40 * 60 * 5;
-		VAR_n_save_wave = 1000;
+		VAR_nimpacts = 4000;
+		VAR_n_save_wave = 4000;
 	end
 
 	% BATCH
-	BATCH0_damping_scale = VAR_damping_scale;
-	BATCH1_h1 = VAR_h1;
+	BATCH0_R = VAR_R;
+	BATCH1_h0_base = VAR_h0_base;
 
 	% Saving
 	VAR_outputFolder = "RES";
 
 	%% ================================================================
 
-	count0 = length(BATCH0_damping_scale);
-	count1 = length(BATCH1_h1);
+	count0 = length(BATCH0_R);
+	count1 = length(BATCH1_h0_base);
 	threadCount = count0 * count1;
 
 	% Only do one run if using on local
@@ -126,43 +125,39 @@ function batch_main(IN_batchIndex)
 		% scale with spatial res squared to keep well behaved for high res
 
 		% Topography
-		p.topography_type = VAR_topography_type; % options: 'flat', 'square_well', 'circular_well'
-		p.damping_type = VAR_damping_type; % options: 'none', 'scaled'
-		p.corral_type = VAR_corral_type; % options: 'none', 'rigid', 'spring'
+		p.topography_type = VAR_topography_type; % options: "flat", "square_well", "circular_well"
 
-		radius = VAR_R;
+		h0_base = BATCH1_h0_base(idx1);
+		h1 = VAR_h1;
+		radius = BATCH0_R(idx0);
 		switch p.topography_type
 			case "flat"
-				p.h1 = VAR_h0_base;
-				p.h0 = VAR_h0_base; % m (constant depth)
-				p.Rc = radius;      % lambdaF (droplet corral radius)
-				p.Dc = p.Rc*2;      % lambdaF (droplet corral diameter)
+				p.h1 = h0_base;
+				p.h0 = h0_base;        % m (constant depth)
 			case "square_well"
-				p.h0 = 1.5*10^(-3); % m (interior depth)
-				p.h1 = 1.5*10^(-4); % m (exterior depth)
-				p.Lt = 4;           % lambdaF (well width)
+				p.h1 = h1;             % m (exterior depth)
+				p.h0 = h0_base + p.h1; % m (interior depth)
+				p.Rc = radius;         % lambdaF (well width / 2)
 			case "circular_well"
-				p.h1 = BATCH1_h1(idx1);     % m (interior depth)
-				p.h0 = VAR_h0_base + p.h1; % m (exterior depth)
-				p.Rc = radius;  % lambdaF (well radius)
-				p.Dc = p.Rc*2;  % lambdaF (well diameter)
+				p.h1 = h1;             % m (exterior depth)
+				p.h0 = h0_base + p.h1; % m (interior depth)
+				p.Rc = radius;  	   % lambdaF (well radius)
 		end
 
-		switch p.damping_type
-			case "scaled"
-				p.effective_corral_radius = radius * VAR_effective_corral_radius_scale;
-				p.damping_scale = VAR_damping_scale;
-		end
-
-		p.damping_scale = BATCH0_damping_scale(idx0);
-		p.wave_damping_blend_rate = VAR_wave_damping_blend_rate;
+		% Corral
+		p.corral_type = VAR_corral_type; % options: "none", "rigid", "spring", "damped"
 
 		switch p.corral_type
+			case "rigid"
+				p.effective_corral_radius = VAR_effective_corral_radius * radius;
 			case "spring"
-				p.effective_corral_radius = radius * VAR_effective_corral_radius_scale;
+				p.effective_corral_radius = VAR_effective_corral_radius * radius;
 				p.spring_force_coefficient = VAR_spring_force_coefficient;
+			case "damped"
+				p.effective_corral_radius = VAR_effective_corral_radius * radius;
+				p.damping_scale = VAR_damping_scale;
 		end
-
+		
 		p = top_params(p);
 
 		%% Calculate Faraday Threshold
@@ -170,7 +165,7 @@ function batch_main(IN_batchIndex)
 			fprintf("%s: Overriding threshold.\n", datetime);
 			p.GamF = VAR_thresholdGuess;
 		else
-			thresholdFile = sprintf("%s/threshold_cache/%f_%f_%f_%d_%d_%d_%d_%f.mat", BASE_DIRECTORY, p.h0, p.h1, p.Rc, timeStepDivisor, gridPerWave, domainWidth, p.damping_scale, p.wave_damping_blend_rate);
+			thresholdFile = sprintf("%s/threshold_cache/%f_%f_%f_%d_%d_%d.mat", BASE_DIRECTORY, p.h0, p.h1, p.Rc, timeStepDivisor, gridPerWave, domainWidth);
 			if isfile(thresholdFile)
 				fprintf("%s: Cache hit, loading threshold for %s.\n", datetime, thresholdFile);
 				gamFLoad = load(thresholdFile);
@@ -249,7 +244,7 @@ function batch_main(IN_batchIndex)
 
 		%% Output Results
 
-		outputSubfolder = sprintf("RES_N=%d, mem=%.2f, %s R=%.2f h0=%.2f h1=%.2f, theta=%.2f, wds=%d, wdbr=%.2f", p.n_drops, p.mem * 100, p.topography_type, p.Rc, p.h0 * 1000, p.h1 * 1000, p.theta / pi, p.damping_scale, p.wave_damping_blend_rate);
+		outputSubfolder = sprintf("RES_N=%d, mem=%.2f, %s R=%.2f h0=%.2f h1=%.2f, theta=%.2f", p.n_drops, p.mem * 100, p.topography_type, p.Rc, p.h0 * 1000, p.h1 * 1000, p.theta / pi);
 		outputFolder = fullfile(VAR_outputFolder, outputSubfolder);
 		if ~isfolder(outputFolder)
 			mkdir(outputFolder);
