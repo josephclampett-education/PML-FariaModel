@@ -526,7 +526,7 @@ function DrawBounds1DRad(p, origin)
     end
     switch p.damping_type
         case 'scaled'
-            xline(p.effective_corral_radius - origin, "--r", LineWidth = 1.0);
+            xline(p.effective_damping_radius - origin, "--r", LineWidth = 1.0);
     end
     switch p.corral_type
         case 'spring'
@@ -553,8 +553,8 @@ function DrawBounds1DDia(p, origin)
     end
     switch p.damping_type
         case 'scaled'
-            xline(p.effective_corral_radius - origin, "--r", LineWidth = 1.0);
-            xline(-(p.effective_corral_radius - origin), "--r", LineWidth = 1.0);
+            xline(p.effective_damping_radius - origin, "--r", LineWidth = 1.0);
+            xline(-(p.effective_damping_radius - origin), "--r", LineWidth = 1.0);
     end
     switch p.corral_type
         case 'spring'

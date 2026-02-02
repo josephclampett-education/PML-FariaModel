@@ -51,11 +51,9 @@ function [dissip] = dissipation(var_hat, p)
 
     p.damping = 2*p.nu0*ones(size(p.xx));
 
-    switch p.corral_type
+    switch p.damping_type
         case "damped"
-            p.damping(sqrt(p.xx.^2 + p.yy.^2) > p.effective_corral_radius*p.Rc) = p.damping_scale*p.damping(sqrt(p.xx.^2 + p.yy.^2) > p.effective_corral_radius*p.Rc); 
-        otherwise
-            p.damping(sqrt(p.xx.^2 + p.yy.^2) > p.Rc) = p.damping_scale*p.damping(sqrt(p.xx.^2 + p.yy.^2) > p.Rc);
+            p.damping(sqrt(p.xx.^2 + p.yy.^2) > p.effective_damping_radius) = p.damping_scale*p.damping(sqrt(p.xx.^2 + p.yy.^2) > p.effective_damping_radius); 
     end
 
     w    = p.damping.*ifft2(p.KxiKy.*var_hat);
