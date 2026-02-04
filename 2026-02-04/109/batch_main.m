@@ -21,7 +21,7 @@ function batch_main(IN_batchIndex)
 
 	% BATH
 	VAR_topography_type = "flat"; % options: "flat", "square_well", "circular_well"
-	VAR_damping_type = "rigid"; % options: "none", "damped"
+	VAR_damping_type = "none"; % options: "none", "damped"
 	VAR_corral_type = "rigid"; % options: "none", "rigid", "spring"
 
 	VAR_h0_base = 2*10^(-3); % mm
