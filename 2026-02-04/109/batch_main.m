@@ -40,7 +40,7 @@ function batch_main(IN_batchIndex)
 	% DROPLETS
 	VAR_r = (0.45)*10^(-3); % m
 	VAR_theta = 1.20;       % / π
-	VAR_n_drops = (CONST_RLIST .^ 2) * (10 / CONST_RLIST(3)^2);
+	VAR_n_drops = round((CONST_RLIST .^ 2) * (10 / CONST_RLIST(3)^2));
 
 	VAR_droplet_collision_type = "none";
 
@@ -64,6 +64,7 @@ function batch_main(IN_batchIndex)
 
 	% BATCH
 	BATCH0_R = VAR_R;
+	BATCH0_n_drops = VAR_n_drops;
 	BATCH1_h0_base = VAR_h0_base;
 
 	% Saving
@@ -188,7 +189,7 @@ function batch_main(IN_batchIndex)
 		%% Set Drop Parameters & Initial Conditions
 
 		% Number of Drops
-		p.n_drops = VAR_n_drops;
+		p.n_drops = BATCH0_n_drops(idx0);
 
 		% Note:
 		% only the mass matters since treated as a point for impacts
