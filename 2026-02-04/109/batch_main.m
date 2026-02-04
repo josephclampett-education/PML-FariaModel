@@ -21,7 +21,7 @@ function batch_main(IN_batchIndex)
 
 	% BATH
 	VAR_topography_type = "flat"; % options: "flat", "square_well", "circular_well"
-	VAR_damping_type = "none"; % options: "none", "damped"
+	VAR_damping_type = "rigid"; % options: "none", "damped"
 	VAR_corral_type = "rigid"; % options: "none", "rigid", "spring"
 
 	VAR_h0_base = 2*10^(-3); % mm
@@ -40,7 +40,7 @@ function batch_main(IN_batchIndex)
 	% DROPLETS
 	VAR_r = (0.45)*10^(-3); % m
 	VAR_theta = 1.20;       % / π
-	VAR_n_drops = 10;
+	VAR_n_drops = (CONST_RLIST .^ 2) * (10 / CONST_RLIST(3)^2);
 
 	VAR_droplet_collision_type = "none";
 
